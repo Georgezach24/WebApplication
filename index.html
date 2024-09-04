@@ -125,26 +125,13 @@
 								<div class="main-menu">
 									<nav class="navigation">
 										<ul class="nav menu">
-											<li class="active"><a href="#">Home <i class="icofont-rounded-down"></i></a>
-												<ul class="dropdown">
-													<li><a href="index.html">Home Page 1</a></li>
-												</ul>
-											</li>
-											<li><a href="#">Doctos </a></li>
-											<li><a href="#">Services </a></li>
-											<li><a href="#">Pages <i class="icofont-rounded-down"></i></a>
-												<ul class="dropdown">
-													<li><a href="404.html">404 Error</a></li>
-												</ul>
-											</li>
-											<li><a href="#">Blogs <i class="icofont-rounded-down"></i></a>
-												<ul class="dropdown">
-													<li><a href="blog-single.html">Blog Details</a></li>
-												</ul>
-											</li>
-											<li><a href="contact.html">Contact Us</a></li>
+											<li class="active"><a href="index.html">Αρχική</a></li>
+											<li><a href="patients.html">Διαχείριση Ασθενών</a></li>
+											<li><a href="appointments.html">Διαχείριση Ραντεβού</a></li>
+											<li><a href="history.html">Ιστορικό Ασθενών</a></li>
 										</ul>
 									</nav>
+									
 								</div>
 								<!--/ End Main Menu -->
 							</div>
@@ -170,17 +157,67 @@
 						<div class="row">
 							<div class="col-lg-7">
 								<div class="text">
-									<h1>We Provide <span>Medical</span> Services That You Can <span>Trust!</span></h1>
-									<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris sed nisl pellentesque, faucibus libero eu, gravida quam. </p>
+									<h1>Καλωσορίσατε στη Διαχείριση Ιατρείου</h1>
+									<p>Διαχειριστείτε ασθενείς, ιστορικό και ραντεβού εύκολα και γρήγορα.</p>
 									<div class="button">
-										<a href="#" class="btn">Get Appointment</a>
-										<a href="#" class="btn primary">Learn More</a>
+										<a href="patients.html" class="btn">Διαχείριση Ασθενών</a>
+										<a href="appointments.html" class="btn primary">Διαχείριση Ραντεβού</a>
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
+
+				<section class="appointment">
+					<div class="container">
+						<div class="row">
+							<div class="col-lg-12">
+								<div class="section-title">
+									<h2>Κλείστε ένα ραντεβού</h2>
+									<p>Συμπληρώστε τα στοιχεία σας για να κλείσετε ραντεβού με τον γιατρό σας.</p>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-lg-6 col-md-12 col-12">
+								<form class="form" action="add_appointment.php" method="POST">
+									<div class="row">
+										<div class="col-lg-6 col-md-6 col-12">
+											<div class="form-group">
+												<input name="amka" type="text" placeholder="ΑΜΚΑ Ασθενούς" required>
+											</div>
+										</div>
+										<div class="col-lg-6 col-md-6 col-12">
+											<div class="form-group">
+												<input name="doctor" type="text" placeholder="Γιατρός" required>
+											</div>
+										</div>
+										<div class="col-lg-6 col-md-6 col-12">
+											<div class="form-group">
+												<input type="text" placeholder="Ημερομηνία Ραντεβού" id="datepicker" name="date" required>
+											</div>
+										</div>
+									</div>
+									<div class="row">
+										<div class="col-lg-5 col-md-4 col-12">
+											<div class="form-group">
+												<button type="submit" class="btn">Κλείστε Ραντεβού</button>
+											</div>
+										</div>
+									</div>
+								</form>
+							</div>
+							<div class="col-lg-6 col-md-12 ">
+								<div class="appointment-image">
+									<img src="img/contact-img.png" alt="#">
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+				
+				
 				<!-- End Single Slider -->
 				<!-- Start Single Slider -->
 				<div class="single-slider" style="background-image:url('img/slider.jpg')">
@@ -934,18 +971,15 @@
 					<div class="row">
 						<div class="col-lg-3 col-md-6 col-12">
 							<div class="single-footer">
-								<h2>About Us</h2>
-								<p>Lorem ipsum dolor sit am consectetur adipisicing elit do eiusmod tempor incididunt ut labore dolore magna.</p>
-								<!-- Social -->
+								<h2>Επικοινωνία</h2>
+								<p>Επικοινωνήστε μαζί μας για οποιαδήποτε απορία ή ζήτηση για ραντεβού.</p>
 								<ul class="social">
 									<li><a href="#"><i class="icofont-facebook"></i></a></li>
-									<li><a href="#"><i class="icofont-google-plus"></i></a></li>
-									<li><a href="#"><i class="icofont-twitter"></i></a></li>
-									<li><a href="#"><i class="icofont-vimeo"></i></a></li>
-									<li><a href="#"><i class="icofont-pinterest"></i></a></li>
+									<li><a href="#"><i class="icofont-email"></i> support@clinic.com</a></li>
+									<li><a href="#"><i class="icofont-phone"></i> +30 210 1234567</a></li>
 								</ul>
-								<!-- End Social -->
 							</div>
+							
 						</div>
 						<div class="col-lg-3 col-md-6 col-12">
 							<div class="single-footer f-link">
