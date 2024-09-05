@@ -160,6 +160,7 @@ CREATE TABLE `xristis` (
   `LastName` varchar(255) DEFAULT NULL,
   `Email` varchar(255) DEFAULT NULL,
   `Password` varchar(255) DEFAULT NULL
+  'Role'  ENUM('Doctor', 'Secretary', 'Patient') NOT NULL DEFAULT 'Patient';
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
