@@ -46,7 +46,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     header("Location: patient_dashboard.php");
                     break;
                 default:
-                    header("Location: index.php");
+                    header("Location: index.html");
                     break;
             }
             exit();
