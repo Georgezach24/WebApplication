@@ -2,7 +2,7 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "doctorsoffice";
+$dbname = "healthclinic_db";
 
 // Σύνδεση με βάση δεδομένων
 $conn = new mysqli($servername, $username, $password, $dbname);
