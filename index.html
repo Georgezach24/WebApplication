@@ -181,31 +181,27 @@
 						</div>
 						<div class="row">
 							<div class="col-lg-6 col-md-12 col-12">
-								<form class="form" action="add_appointment.php" method="POST">
-									<div class="row">
-										<div class="col-lg-6 col-md-6 col-12">
-											<div class="form-group">
-												<input name="amka" type="text" placeholder="ΑΜΚΑ Ασθενούς" required>
-											</div>
-										</div>
-										<div class="col-lg-6 col-md-6 col-12">
-											<div class="form-group">
-												<input name="doctor" type="text" placeholder="Γιατρός" required>
-											</div>
-										</div>
-										<div class="col-lg-6 col-md-6 col-12">
-											<div class="form-group">
-												<input type="text" placeholder="Ημερομηνία Ραντεβού" id="datepicker" name="date" required>
-											</div>
-										</div>
-									</div>
-									<div class="row">
-										<div class="col-lg-5 col-md-4 col-12">
-											<div class="form-group">
-												<button type="submit" class="btn">Κλείστε Ραντεβού</button>
-											</div>
-										</div>
-									</div>
+								<form action="add_appointment.php" method="POST">
+									<label for="amka">ΑΜΚΑ Ασθενούς:</label>
+									<input type="text" id="amka" name="amka" required>
+								
+									<label for="doctor">Ιατρός:</label>
+									<select id="doctor" name="doctor" required>
+										<option value="1">Δρ. Παπαδόπουλος</option>
+										<option value="2">Δρ. Ιωάννου</option>
+										<!-- Add more doctor options as needed -->
+									</select>
+								
+									<label for="date">Ημερομηνία Ραντεβού:</label>
+									<input type="date" id="date" name="date" required>
+								
+									<label for="time">Ώρα Ραντεβού:</label>
+									<input type="time" id="time" name="time" required>
+								
+									<label for="description">Περιγραφή:</label>
+									<textarea id="description" name="description"></textarea>
+								
+									<button type="submit">Κλείστε Ραντεβού</button>
 								</form>
 							</div>
 							<div class="col-lg-6 col-md-12 ">
