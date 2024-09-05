@@ -4,7 +4,7 @@ require_once 'db_config.php'; // Include your database configuration file
 
 // Ensure the user is logged in and has the role of Patient
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Patient') {
-    header('Location: login.php');
+    header('Location: login.html');
     exit();
 }
 
