@@ -2,7 +2,7 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "clinic_db";
+$dbname = "doctorsoffice";
 
 // Σύνδεση με βάση δεδομένων
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -13,17 +13,32 @@ if ($conn->connect_error) {
 }
 
 $amka = $_POST['amka'];
-$doctor = $_POST['doctor'];
-$date = $_POST['date'];
+$doctor_id = $_POST['doctor']; // Assuming this will be a doctor ID
+$appointment_date = $_POST['date'];
+$appointment_time = $_POST['time'];
+$appointment_desc = $_POST['description'];
 
-// Εισαγωγή ραντεβού
-$sql = "INSERT INTO Appointments (patient_id, doctor_id, appointment_date) VALUES ((SELECT id FROM Patients WHERE amka='$amka'), (SELECT id FROM Users WHERE first_name='$doctor'), '$date')";
+$sql_patient = "SELECT AT FROM asthenis WHERE P_AMKA = '$amka'";
+$result_patient = $conn->query($sql_patient);
 
-if ($conn->query($sql) === TRUE) {
-    echo "Το ραντεβού καταχωρήθηκε επιτυχώς!";
+if ($result_patient->num_rows > 0) {
+    $row = $result_patient->fetch_assoc();
+    $patient_id = $row['AT'];
+
+    // Insert the appointment
+    $sql_insert = "INSERT INTO rantevou (id_appointment, a_date, a_time, a_desc, a_doc, a_state)
+                   VALUES (UUID(), '$appointment_date', '$appointment_time', '$appointment_desc', '$doctor_id', 'scheduled')";
+
+    if ($conn->query($sql_insert) === TRUE) {
+        header("Location: success.php");
+        exit();
+    } else {
+        echo "Error: " . $sql_insert . "<br>" . $conn->error;
+    }
 } else {
-    echo "Σφάλμα: " . $sql . "<br>" . $conn->error;
+    echo "No patient found with the given AMKA!";
 }
+
 
 $conn->close();
 ?>
