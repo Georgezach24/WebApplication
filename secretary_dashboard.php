@@ -32,25 +32,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register_patient'])) {
     $result = $stmt_check->get_result();
 
     if ($result->num_rows > 0) {
+        // Αν υπάρχει ήδη ασθενής με αυτό το ΑΜΚΑ ή email
         echo "Υπάρχει ήδη ασθενής με αυτό το ΑΜΚΑ ή email.";
     } else {
-        // Εισαγωγή νέου ασθενούς
-        $sql = "INSERT INTO xristis (AT, FirstName, LastName, Email, Password, Role) VALUES (?, ?, ?, ?, ?, 'Patient')";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param('sssss', $amka, $first_name, $last_name, $email, $password);
+        // Εισαγωγή νέου ασθενούς στον πίνακα xristis
+        $sql_xristis = "INSERT INTO xristis (AT, FirstName, LastName, Email, Password, Role) VALUES (?, ?, ?, ?, ?, 'Patient')";
+        $stmt_xristis = $conn->prepare($sql_xristis);
+        $stmt_xristis->bind_param('sssss', $amka, $first_name, $last_name, $email, $password);
 
-        if ($stmt->execute()) {
-            // Επιτυχής εγγραφή
-            echo "Ο ασθενής εγγράφηκε επιτυχώς!";
+        if ($stmt_xristis->execute()) {
+            // Επιτυχής εγγραφή στον πίνακα xristis
+            // Εισαγωγή του ασθενούς στον πίνακα asthenis
+            $sql_asthenis = "INSERT INTO asthenis (AT, P_Name, P_Surname, P_DateOfEntry, P_AMKA) VALUES (?, ?, ?, NOW(), ?)";
+            $stmt_asthenis = $conn->prepare($sql_asthenis);
+            $stmt_asthenis->bind_param('ssss', $amka, $first_name, $last_name, $amka); // Χρήση του ίδιου ΑΜΚΑ και στον πίνακα `asthenis`
+
+            if ($stmt_asthenis->execute()) {
+                // Επιτυχής εγγραφή και στους δύο πίνακες
+                echo "Ο ασθενής εγγράφηκε επιτυχώς!";
+            } else {
+                // Σφάλμα κατά την εγγραφή στον πίνακα asthenis
+                echo "Σφάλμα κατά την εγγραφή στον πίνακα ασθενών: " . $conn->error;
+            }
+            $stmt_asthenis->close();
         } else {
-            // Σφάλμα κατά την εγγραφή
+            // Σφάλμα κατά την εγγραφή στον πίνακα xristis
             echo "Σφάλμα κατά την εγγραφή: " . $conn->error;
         }
-        $stmt->close();
+        $stmt_xristis->close();
     }
 
     $stmt_check->close();
 }
+
+
 
 
 // Φόρτωση λίστας ασθενών
@@ -65,143 +80,20 @@ if (isset($_GET['patient_email'])) {
         $patient_appointments[] = $row;
     }
 }
+// Κλείσιμο της σύνδεσης με τη βάση δεδομένων
+$conn->close();
 ?>
+
 
 <!doctype html>
 <html lang="el">
 <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>Patient Dashboard - Mediplus</title>
-
+    <title>Γραμματεία - Διαχείριση Ασθενών</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/font-awesome.min.css">
-    <link rel="stylesheet" href="css/icofont.css">
-    <link rel="stylesheet" href="css/style.css">
-
-    <style>
-        /* Custom styling for better layout */
-        .header-inner {
-            margin-bottom: 30px;
-        }
-
-        /* Remove the topbar and extra contact information */
-        .topbar, .top-contact {
-            display: none;
-        }
-
-        .section-title {
-            margin-bottom: 40px;
-            text-align: center;
-        }
-
-        .profile-info, .appointments, .history {
-            margin-bottom: 50px;
-        }
-
-        .profile-info h3, .appointments h3, .history h3 {
-            margin-bottom: 20px;
-        }
-
-        .profile-info p, .appointments p, .history p {
-            margin-bottom: 15px;
-        }
-
-        .profile-info a {
-            margin-top: 20px;
-        }
-
-        /* Styling for table */
-        .table-responsive {
-            margin-top: 20px;
-        }
-
-        /* Footer styling */
-        footer {
-            margin-top: 50px;
-            padding: 30px 0;
-            background: #f8f9fa;
-        }
-
-        /* Spacing for navigation links */
-        .nav.menu > li {
-            margin-right: 20px;
-        }
-
-        .profile-info, .appointments, .history {
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-        }
-
-        .profile-info p, .appointments p, .history p {
-            font-size: 16px;
-            color: #333;
-        }
-
-        /* Add subtle separator line between menu and content */
-        .nav-separator {
-            border-bottom: 1px solid #e0e0e0;
-            margin-bottom: 20px;
-        }
-
-        /* Footer links and contact information layout */
-        .footer-bottom {
-            margin-top: 30px;
-        }
-
-        /* Hide the unnecessary "Links" section in footer */
-        .footer-links {
-            display: none;
-        }
-
-        .footer-contact p {
-            margin-bottom: 10px;
-        }
-
-        .footer-contact i {
-            margin-right: 10px;
-        }
-
-        .btn {
-            margin-top: 10px;
-        }
-    </style>
 </head>
 <body>
-
-<!-- Header Area -->
-<header class="header">
-    <div class="header-inner">
-        <div class="container">
-            <div class="inner">
-                <div class="row">
-                    <div class="col-lg-3 col-md-3 col-12">
-                        <!-- Logo -->
-                        <div class="logo">
-                            <a href="index.php"><img src="img/logo.png" alt="#"></a>
-                        </div>
-                    </div>
-                    <div class="col-lg-7 col-md-9 col-12">
-                        <div class="main-menu">
-                            <nav class="navigation">
-                            </nav>
-                            <!-- Subtle separator line -->
-                            <div class="nav-separator"></div>
-                        </div>
-                    </div>
-                    <div class="col-lg-2 col-12">
-                        <div class="get-quote">
-                            <a href="logout.php" class="btn">Logout</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</header>
-<!-- End Header Area -->
 
 <!-- Εγγραφή νέου ασθενούς -->
 <section class="patients section">

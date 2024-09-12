@@ -1,24 +1,25 @@
 <?php
 session_start();
-require_once 'db_config.php'; // Include your database configuration file
+require_once 'db_config.php';
 
-// Ensure the user is logged in and has the role of Patient
+// Έλεγχος αν ο χρήστης είναι συνδεδεμένος ως ασθενής
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Patient') {
     header('Location: login.html');
     exit();
 }
 
-$email = $_SESSION['user_email'];
-$patientAT = '';
+$email = $_SESSION['user_email']; // Email του συνδεδεμένου ασθενούς
+$patientAT = ''; // Η ταυτότητα του ασθενούς
 
+// Σύνδεση με τη βάση δεδομένων
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
-// Check the connection
+// Έλεγχος σύνδεσης
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetch patient information to get the AT
+// Λήψη του AT (ΑΜΚΑ) του ασθενούς με βάση το email
 $stmt = $conn->prepare("SELECT AT FROM xristis WHERE Email = ?");
 $stmt->bind_param("s", $email);
 $stmt->execute();
@@ -26,33 +27,47 @@ $stmt->bind_result($patientAT);
 $stmt->fetch();
 $stmt->close();
 
-// Handle form submission
+// Χειρισμός της υποβολής του ραντεβού
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $date = $_POST['date'];
     $time = $_POST['time'];
     $description = $_POST['description'];
-    
-    // Validate input
+
+    // Έλεγχος για κενά πεδία
     if (empty($date) || empty($time) || empty($description)) {
-        $error = "All fields are required.";
+        $error = "Όλα τα πεδία είναι υποχρεωτικά.";
     } else {
-        // Insert new appointment into the database
-        $stmt = $conn->prepare("INSERT INTO rantevou (a_doc, a_date, a_time, a_desc, a_state) VALUES (?, ?, ?, ?, 'Pending')");
-        $stmt->bind_param("ssss", $patientAT, $date, $time, $description);
-        
+        // Εισαγωγή του ραντεβού στον πίνακα rantevou
+        $stmt = $conn->prepare("INSERT INTO rantevou (a_date, a_time, a_desc, a_state) VALUES (?, ?, ?, 'Pending')");
+        $stmt->bind_param("sss", $date, $time, $description);
+
         if ($stmt->execute()) {
-            $success = "Appointment created successfully.";
+            // Λήψη του ID του νέου ραντεβού
+            $appointment_id = $stmt->insert_id;
+
+            // Σύνδεση του ραντεβού με τον ασθενή στον πίνακα books
+            $stmt_books = $conn->prepare("INSERT INTO books (AT, id_appointment) VALUES (?, ?)");
+            $stmt_books->bind_param("ss", $patientAT, $appointment_id);
+
+            if ($stmt_books->execute()) {
+                $success = "Το ραντεβού δημιουργήθηκε επιτυχώς.";
+            } else {
+                $error = "Σφάλμα κατά τη σύνδεση του ραντεβού με τον ασθενή.";
+            }
+            $stmt_books->close();
         } else {
-            $error = "Error creating appointment: " . $stmt->error;
+            $error = "Σφάλμα κατά τη δημιουργία του ραντεβού: " . $stmt->error;
         }
-        
+
         $stmt->close();
     }
 }
+
+$conn->close();
 ?>
 
 <!doctype html>
-<html class="no-js" lang="zxx">
+<html lang="el">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
