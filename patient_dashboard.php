@@ -1,6 +1,6 @@
 <?php
 session_start();
-require_once 'db_config.php'; // Include your database configuration file
+require_once 'db_config.php'; 
 
 // Ensure the user is logged in and has the role of Patient
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Patient') {
@@ -146,12 +146,6 @@ $stmt->close();
                     <div class="col-lg-7 col-md-9 col-12">
                         <div class="main-menu">
                             <nav class="navigation">
-                                <ul class="nav menu">
-                                    <li><a href="index.php">Αρχική</a></li>
-                                    <li class="active"><a href="patient_dashboard.php">Προφίλ Ασθενούς</a></li>
-                                    <li><a href="appointments.php">Ραντεβού</a></li>
-                                    <li><a href="medical_history.php">Ιστορικό</a></li>
-                                </ul>
                             </nav>
                             <!-- Subtle separator line -->
                             <div class="nav-separator"></div>
@@ -282,7 +276,6 @@ $stmt->close();
                     <div class="single-footer footer-contact">
                         <h2>Επικοινωνία</h2>
                         <p>Επικοινωνήστε μαζί μας για οποιαδήποτε απορία ή ζήτηση για ραντεβού.</p>
-                        <p><i class="icofont-email"></i> support@clinic.com</p>
                         <p><i class="icofont-phone"></i> +30 210 1234567</p>
                     </div>
                 </div>

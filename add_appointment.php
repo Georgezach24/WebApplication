@@ -30,7 +30,7 @@ if ($result_patient->num_rows > 0) {
                    VALUES (UUID(), '$appointment_date', '$appointment_time', '$appointment_desc', '$doctor_id', 'scheduled')";
 
     if ($conn->query($sql_insert) === TRUE) {
-        header("Location: success.php");
+        header("Location: success.htlm");
         exit();
     } else {
         echo "Error: " . $sql_insert . "<br>" . $conn->error;
