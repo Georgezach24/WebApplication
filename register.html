@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="el">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>Εγγραφή Χρήστη - Σύστημα Διαχείρισης Ιατρείου</title>
+
+        <!-- CSS and Bootstrap -->
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <!-- Header Area -->
+        <header class="header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-3 col-md-3 col-12">
+                        <div class="logo">
+                            <a href="index.html"><img src="img/logo.png" alt="Clinic Logo"></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- End Header Area -->
+
+        <!-- Register Area -->
+        <section class="register section">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-lg-6 col-md-8 col-12">
+                        <div class="register-form">
+                            <h2>Εγγραφή Χρήστη</h2>
+                            <form action="patient_register.php" method="POST">
+                                <div class="form-group">
+                                    <label for="at">Αριθμός Ταυτότητας (ΑΤ)</label>
+                                    <input type="text" id="at" name="at" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="firstName">Όνομα</label>
+                                    <input type="text" id="firstName" name="firstName" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="lastName">Επώνυμο</label>
+                                    <input type="text" id="lastName" name="lastName" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="email">Email</label>
+                                    <input type="email" id="email" name="email" class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="password">Κωδικός Πρόσβασης</label>
+                                    <input type="password" id="password" name="password" class="form-control" required>
+                                </div>
+                                
+                                <div class="form-group" id="amkaField" style="display: none;">
+                                    <label for="amka">ΑΜΚΑ</label>
+                                    <input type="text" id="amka" name="amka" class="form-control">
+                                </div>
+                                <button type="submit" class="btn btn-primary">Εγγραφή</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- End Register Area -->
+
+        <!-- JS and Bootstrap -->
+        <script src="js/jquery.min.js"></script>
+        <script src="js/bootstrap.min.js"></script>
+        <script src="js/main.js"></script>
+        
+        <!-- Script για εμφάνιση του πεδίου ΑΜΚΑ όταν επιλέγεται "Ασθενής" -->
+        <script>
+            document.getElementById('role').addEventListener('change', function() {
+                var amkaField = document.getElementById('amkaField');
+                if (this.value === 'Patient') {
+                    amkaField.style.display = 'block';
+                } else {
+                    amkaField.style.display = 'none';
+                }
+            });
+        </script>
+    </body>
+</html>

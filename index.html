@@ -2,175 +2,280 @@
 <html class="no-js" lang="zxx">
     <head>
         <!-- Meta Tags -->
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="keywords" content="Site keywords here">
-        <meta name="description" content="">
-        <meta name='copyright' content=''>
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-        <!-- Title -->
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="keywords" content="Site keywords here">
+		<meta name="description" content="">
+		<meta name='copyright' content=''>
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		
+		<!-- Title -->
         <title>Mediplus - Free Medical and Doctor Directory HTML Template.</title>
-
-        <!-- Favicon -->
+		
+		<!-- Favicon -->
         <link rel="icon" href="img/favicon.png">
+		
+		<!-- Google Fonts -->
+		<link href="https://fonts.googleapis.com/css?family=Poppins:200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i&display=swap" rel="stylesheet">
 
-        <!-- Google Fonts -->
-        <link href="https://fonts.googleapis.com/css?family=Poppins:200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i&display=swap" rel="stylesheet">
-
-        <!-- Bootstrap CSS -->
-        <link rel="stylesheet" href="css/bootstrap.min.css">
-        <!-- Nice Select CSS -->
-        <link rel="stylesheet" href="css/nice-select.css">
-        <!-- Font Awesome CSS -->
+		<!-- Bootstrap CSS -->
+		<link rel="stylesheet" href="css/bootstrap.min.css">
+		<!-- Nice Select CSS -->
+		<link rel="stylesheet" href="css/nice-select.css">
+		<!-- Font Awesome CSS -->
         <link rel="stylesheet" href="css/font-awesome.min.css">
-        <!-- Owl Carousel CSS -->
-        <link rel="stylesheet" href="css/owl.carousel.min.css">
-        <!-- Animate CSS -->
-        <link rel="stylesheet" href="css/animate.css">
-        <!-- Magnific Popup -->
+		<!-- icofont CSS -->
+        <link rel="stylesheet" href="css/icofont.css">
+		<!-- Slicknav -->
+		<link rel="stylesheet" href="css/slicknav.min.css">
+		<!-- Owl Carousel CSS -->
+        <link rel="stylesheet" href="css/owl-carousel.css">
+		<!-- Datepicker CSS -->
+		<link rel="stylesheet" href="css/datepicker.css">
+		<!-- Animate CSS -->
+        <link rel="stylesheet" href="css/animate.min.css">
+		<!-- Magnific Popup CSS -->
         <link rel="stylesheet" href="css/magnific-popup.css">
-        <!-- Slick Nav CSS -->
-        <link rel="stylesheet" href="css/slicknav.min.css">
-        <!-- StyleSheet -->
-        <link rel="stylesheet" href="css/style.css">
+		
+		<!-- Medipro CSS -->
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="style.css">
         <link rel="stylesheet" href="css/responsive.css">
-
+		
     </head>
     <body>
-
-        <!-- Preloader -->
+	
+		<!-- Preloader -->
         <div class="preloader">
-            <div class="preloader-inner">
-                <div class="preloader-box">
-                    <div class="preloader-dot">
-                        <div class="preloader-dot-stretch"></div>
-                    </div>
+            <div class="loader">
+                <div class="loader-outter"></div>
+                <div class="loader-inner"></div>
+
+                <div class="indicator"> 
+                    <svg width="16px" height="12px">
+                        <polyline id="back" points="1 6 4 6 6 11 10 1 12 6 15 6"></polyline>
+                        <polyline id="front" points="1 6 4 6 6 11 10 1 12 6 15 6"></polyline>
+                    </svg>
                 </div>
             </div>
         </div>
         <!-- End Preloader -->
+	
+		<!-- Header Area -->
+		<header class="header" >
+			<!-- Header Inner -->
+			<div class="header-inner">
+				<div class="container">
+					<div class="inner">
+						<div class="row">
+							<div class="col-lg-3 col-md-3 col-12">
+								<!-- Start Logo -->
+								<div class="logo">
+									<a href="index.html"><img src="img/logo.png" alt="#"></a>
+								</div>
+								<!-- End Logo -->
+								<!-- Mobile Nav -->
+								<div class="mobile-nav"></div>
+								<!-- End Mobile Nav -->
+							</div>
+							<div class="col-lg-7 col-md-9 col-12">
+								<!-- Main Menu -->
+								<div class="main-menu">
+									<nav class="navigation">
+										<ul class="nav menu">
+											<li class="active"><a href="index.html">Αρχική</a></li>
+											<li><a href="patients.html">Ποιοί Είμαστε</a></li>
+										</ul>
+									</nav>
+									
+								</div>
+								<!--/ End Main Menu -->
+							</div>
+							<div class="col-lg-2 col-12">
+								<div class="get-quote" style="display: flex; gap: 10px;">
+									<a href="login.html" class="btn">Login</a>
+									<a href="register.html" class="btn">Register</a>
+								</div>
+								
+								
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!--/ End Header Inner -->
+		</header>
+		<!-- End Header Area -->
+		
+		<!-- Slider Area -->
+		<section class="slider">
+			<div class="hero-slider">
+				<!-- Start Single Slider -->
+				<div class="single-slider" style="background-image:url('img/slider2.jpg')">
+					<div class="container">
+						<div class="row">
+							<div class="col-lg-7">
+								<div class="text">
+									<h1>Καλωσορίσατε στο Ηλεκτρονικό Ιατρείο μας!</h1>
+									<p>Εδω η υγεία σας είναι προτεραιότητα μας.</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 
-        <!-- Header Area -->
-        <header class="header">
-            <div class="topbar">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-8 col-md-8 col-12">
-                            <!-- Top Contact -->
-                            <ul class="top-contact">
-                                <li><i class="fa fa-phone"></i>+123 456 789</li>
-                                <li><i class="fa fa-envelope"></i>support@yourmail.com</li>
-                                <li><i class="fa fa-clock-o"></i>Mon - Sat: 9:00 - 18:00</li>
-                            </ul>
-                            <!-- End Top Contact -->
-                        </div>
-                        <div class="col-lg-4 col-md-4 col-12">
-                            <div class="topbar-right">
-                                <ul class="top-contact">
-                                    <li><a href="login.html"><i class="fa fa-sign-in"></i>Login</a></li>
-                                    <li><a href="patient_register.php"><i class="fa fa-user-plus"></i>Register</a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="header-inner">
-                <div class="container">
-                    <div class="inner-header">
-                        <div class="row">
-                            <div class="col-lg-2 col-12">
-                                <!-- Logo -->
-                                <div class="logo">
-                                    <a href="index.html"><img src="img/logo.png" alt="#"></a>
-                                </div>
-                                <div class="mobile-nav"></div>
-                            </div>
-                            <div class="col-lg-10 col-12">
-                                <div class="main-menu">
-                                    <nav class="navbar navbar-expand-lg">
-                                        <div class="navbar-collapse">    
-                                            <ul class="nav menu-navbar">
-                                                <li><a href="index.html">Home</a></li>
-                                                <li><a href="#">Pages</a></li>
-                                                <li><a href="#">Doctors</a></li>
-                                                <li><a href="#">Appointments</a></li>
-                                                <li><a href="#">Contact</a></li>
-                                            </ul>
-                                        </div>
-                                    </nav>
-                                </div>
-                                <div class="get-quote">
-                                    <a href="login.html" class="btn" style="width:auto; display:inline-block; float:left;">Login</a>
-                                    <a href="patient_register.php" class="btn" style="width:auto; display:inline-block; float:right;">Register</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </header>
-        <!-- End Header Area -->
+				
+				<!-- End Single Slider -->
+				<!-- Start Single Slider -->
+				<div class="single-slider" style="background-image:url('img/slider.jpg')">
+					<div class="container">
+						<div class="row">
+							<div class="col-lg-7">
+								<div class="text">
+									<h1>Προσφέρουμε <span>ΙΑΤΡΙΚΕΣ</span> Υπηρεσίες όπου μπορείες να <span>ΕΜΠΙΣΤΕΥΤΕΙΣ!</span></h1>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!-- Start End Slider -->
+			</div>
+		</section>
+		<!--/ End Slider Area -->
+		
+		<!-- Start Schedule Area -->
+		<section class="schedule">
+			<div class="container">
+				<div class="schedule-inner">
+					<div class="row">
+						<div class="col-lg-4 col-md-12 col-12">
+							<!-- single-schedule -->
+							<div class="single-schedule last">
+								<div class="inner">
+									<div class="icon">
+										<i class="icofont-ui-clock"></i>
+									</div>
+									<div class="single-content">
+										<h4>Ώρες Λειρουργίας</h4>
+										<ul class="time-sidual">
+											<li class="day">Δευτέρα - Παρασκευή <span>07:00-21:00</span></li>
+											<li class="day">Σάββατο <span>8:00-20:00</span></li>
+											<li class="day">Κυριακή <span>Κλειστά</span></li>
 
-        <!-- Slider Area -->
-        <section class="slider">
-            <div class="hero-slider">
-                <!-- Start Single Slider -->
-                <div class="single-slider" style="background-image:url('img/slider2.jpg')">
-                    <div class="container">
-                        <div class="row">
-                            <div class="col-lg-7">
-                                <div class="text">
-                                    <h1>Καλώς ήρθατε στην υπηρεσία διαχείρισης ασθενών</h1>
-                                    <p>Διαχειριστείτε τα ραντεβού σας και την υγεία σας με λίγα απλά βήματα.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- End Single Slider -->
-            </div>
-        </section>
-        <!-- End Slider Area -->
+										</ul>
+										
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<!--/End Start schedule Area -->
+		
+		<!-- Start Why choose -->
+		<section class="why-choose section" >
+			<div class="container">
+				<div class="row">
+					<div class="col-lg-12">
+						<div class="section-title">
+							<h2>Προσφέρουμε Ιατρικές Υπηρεσίες Άμεσα Εύκολα Και Απλά!</h2>
+							<img src="img/section-img.png" alt="#">
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-lg-6 col-12">
+						<!-- Start Choose Left -->
+						<div class="choose-left">
+							<h3>Ποιοί Είμαστε</h3>
+							<p>Είμαστε μια ομάδα επαγγελματιών υγείας με πολυετή εμπειρία στον τομέα της ιατρικής φροντίδας. Σκοπός μας είναι να προσφέρουμε υψηλής ποιότητας υπηρεσίες υγείας με επίκεντρο τον ασθενή. Η φιλοσοφία μας βασίζεται στην παροχή ολοκληρωμένης φροντίδας, προσαρμοσμένης στις ανάγκες του κάθε ατόμου, με σεβασμό και συνέπεια.</p>
+							<p>Στηριζόμαστε στις αξίες της αξιοπιστίας, της εμπιστοσύνης και της επιστημονικής αριστείας, προσφέροντας ένα σύγχρονο και άνετο περιβάλλον για κάθε ασθενή. Η ομάδα μας αποτελείται από εξειδικευμένους γιατρούς και επαγγελματίες υγείας που συνεργάζονται για τη βέλτιστη φροντίδα και ευημερία των ασθενών μας.</p>
 
-        <!-- Start Footer -->
-        <footer class="footer">
-            <div class="footer-top">
-                <div class="container">
-                    <div class="row">
-                        <div class="col-lg-4 col-md-6 col-12">
-                            <div class="footer-about">
-                                <h3>About Us</h3>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vehicula mauris orci, sit amet egestas justo condimentum non.</p>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6 col-12">
-                            <div class="footer-contact">
-                                <h3>Contact Info</h3>
-                                <ul class="address">
-                                    <li><i class="fa fa-phone"></i>+123 456 789</li>
-                                    <li><i class="fa fa-envelope"></i>support@yourmail.com</li>
-                                    <li><i class="fa fa-clock-o"></i>Mon - Sat: 9:00 - 18:00</li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-md-6 col-12">
-                            <div class="footer-social">
-                                <h3>Follow Us</h3>
-                                <ul class="social">
-                                    <li><a href="#"><i class="fa fa-facebook"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-twitter"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-linkedin"></i></a></li>
-                                    <li><a href="#"><i class="fa fa-instagram"></i></a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </footer>
-        <!-- End Footer -->
+						</div>
+						<!-- End Choose Left -->
+					</div>
+					<div class="col-lg-6 col-12">
+						<!-- Start Choose Rights -->
+						<div class="choose-right">
+							<div class="video-image">
+								<!-- Video Animation -->
+								<div class="promo-video">
+									<div class="waves-block">
+										<div class="waves wave-1"></div>
+										<div class="waves wave-2"></div>
+										<div class="waves wave-3"></div>
+									</div>
+								</div>
+								<!--/ End Video Animation -->
+								<a href="https://www.youtube.com/watch?v=RFVXy6CRVR4" class="video video-popup mfp-iframe"><i class="fa fa-play"></i></a>
+							</div>
+						</div>
+						<!-- End Choose Rights -->
+					</div>
+				</div>
+			</div>
+		</section>
+		<!--/ End Why choose -->
+		
+		<!--/ Start footer area -->
+			<!-- Copyright -->
+				<div class="copyright" style="background-color: #b2b9c0; color: white;">
+					<div class="container">
+						<div class="row">
+							<div class="col-lg-12 col-md-12 col-12">
+								<div class="copyright-content">
+									<p>© Copyright 2024  |  All Rights Reserved by <a href="https://www.icsd.aegean.gr/" target="_blank" style="color: rgb(80, 75, 75);">www.icsd.aegean.gr</a></p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<!--/ End Copyright -->
 
+		</footer>
+		<!--/ End Footer Area -->
+		
+		<!-- jquery Min JS -->
+        <script src="js/jquery.min.js"></script>
+		<!-- jquery Migrate JS -->
+		<script src="js/jquery-migrate-3.0.0.js"></script>
+		<!-- jquery Ui JS -->
+		<script src="js/jquery-ui.min.js"></script>
+		<!-- Easing JS -->
+        <script src="js/easing.js"></script>
+		<!-- Color JS -->
+		<script src="js/colors.js"></script>
+		<!-- Popper JS -->
+		<script src="js/popper.min.js"></script>
+		<!-- Bootstrap Datepicker JS -->
+		<script src="js/bootstrap-datepicker.js"></script>
+		<!-- Jquery Nav JS -->
+        <script src="js/jquery.nav.js"></script>
+		<!-- Slicknav JS -->
+		<script src="js/slicknav.min.js"></script>
+		<!-- ScrollUp JS -->
+        <script src="js/jquery.scrollUp.min.js"></script>
+		<!-- Niceselect JS -->
+		<script src="js/niceselect.js"></script>
+		<!-- Tilt Jquery JS -->
+		<script src="js/tilt.jquery.min.js"></script>
+		<!-- Owl Carousel JS -->
+        <script src="js/owl-carousel.js"></script>
+		<!-- counterup JS -->
+		<script src="js/jquery.counterup.min.js"></script>
+		<!-- Steller JS -->
+		<script src="js/steller.js"></script>
+		<!-- Wow JS -->
+		<script src="js/wow.min.js"></script>
+		<!-- Magnific Popup JS -->
+		<script src="js/jquery.magnific-popup.min.js"></script>
+		<!-- Counter Up CDN JS -->
+		<script src="http://cdnjs.cloudflare.com/ajax/libs/waypoints/2.0.3/waypoints.min.js"></script>
+		<!-- Bootstrap JS -->
+		<script src="js/bootstrap.min.js"></script>
+		<!-- Main JS -->
+		<script src="js/main.js"></script>
     </body>
 </html>

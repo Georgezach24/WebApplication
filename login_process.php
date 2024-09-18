@@ -26,8 +26,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt->bind_result($db_email, $db_password, $firstName, $lastName, $role);
         $stmt->fetch();
 
-        // Check if the entered password matches the plain text password from the database
-        if ($password == $db_password) { // Compare plain text password
+        // Use password_verify to compare the entered password with the hashed password in the database
+        if (password_verify($password, $db_password)) { // Check hashed password
             // Successful login, store user info in session
             $_SESSION['user_email'] = $db_email;
             $_SESSION['first_name'] = $firstName;
