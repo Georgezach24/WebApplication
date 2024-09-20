@@ -1,13 +1,15 @@
 <?php
 require_once 'db_config.php'; // Σύνδεση με τη βάση δεδομένων
-// Ensure the user is logged in and has the role of Patient
+session_start();
+
+// Ensure the user is logged in and has the role of Secretary
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Secretary') {
     header('Location: login.html');
     exit();
 }
 
+// Ανάκτηση λίστας ασθενών
 $patients = $conn->query("SELECT Email, FirstName, LastName, AT FROM xristis WHERE Role = 'Patient'");
-
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Λήψη των δεδομένων από τη φόρμα
@@ -16,13 +18,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = $_POST['email']; // Email
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT); // Κρυπτογραφημένος κωδικός
     $amka = isset($_POST['amka']) ? $_POST['amka'] : null; // ΑΜΚΑ για Ασθενείς
-    $role = 'Patient'; // Ρόλος του χρήστη
-
-    
+    $role = isset($_POST['role']) ? $_POST['role'] : 'Patient'; // Το role ορίζεται από τη φόρμα (default: Patient)
 
     // Έλεγχος για υπάρχον χρήστη με το ίδιο Email ή AMKA στον πίνακα `asthenis`
     $stmt = $conn->prepare("SELECT * FROM xristis WHERE Email = ? OR AT IN (SELECT AT FROM asthenis WHERE P_AMKA = ?)");
-    $stmt->bind_param("ss", $email, vars: $amka);
+    $stmt->bind_param("ss", $email, $amka);
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -77,7 +77,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 $conn->close();
 ?>
 
-
 <!doctype html>
 <html lang="el">
 <head>
@@ -124,7 +123,16 @@ $conn->close();
                     <label for="password">Κωδικός Πρόσβασης</label>
                     <input type="password" id="password" name="password" class="form-control" required>
                 </div>
-                <button type="submit" name="register_patient" class="btn btn-primary">Εγγραφή Ασθενούς</button>
+                <!-- Επιλογή ρόλου -->
+                <div class="form-group">
+                    <label for="role">Ρόλος</label>
+                    <select id="role" name="role" class="form-control" required>
+                        <option value="Secretary">Secretary</option>
+                        <option value="Doctor">Doctor</option>
+                        <option value="Patient">Patient</option>
+                    </select>
+                </div>
+                <button type="submit" name="register_patient" class="btn btn-primary">Εγγραφή Χρήστη</button>
             </form>
         </div>
     </section>
