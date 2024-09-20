@@ -1,86 +1,79 @@
 <?php
-session_start();
-require_once 'db_config.php'; // Συμπεριλαμβάνουμε το αρχείο σύνδεσης με τη βάση δεδομένων
-
-// Έλεγχος αν ο χρήστης είναι συνδεδεμένος και έχει το ρόλο της γραμματείας
+require_once 'db_config.php'; // Σύνδεση με τη βάση δεδομένων
+// Ensure the user is logged in and has the role of Patient
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Secretary') {
     header('Location: login.html');
     exit();
 }
 
-// Δημιουργία σύνδεσης με τη βάση δεδομένων
-$conn = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+$patients = $conn->query("SELECT Email, FirstName, LastName, AT FROM xristis WHERE Role = 'Patient'");
 
-// Έλεγχος σύνδεσης
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
 
-// Χειρισμός της εγγραφής νέου ασθενούς
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['register_patient'])) {
-    $first_name = $_POST['first_name'];
-    $last_name = $_POST['last_name'];
-    $email = $_POST['email'];
-    $amka = $_POST['amka'];
-    $password = password_hash($_POST['password'], PASSWORD_BCRYPT); // Κρυπτογράφηση του κωδικού
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Λήψη των δεδομένων από τη φόρμα
+    $firstName = $_POST['first_name']; // Όνομα
+    $lastName = $_POST['last_name']; // Επώνυμο
+    $email = $_POST['email']; // Email
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT); // Κρυπτογραφημένος κωδικός
+    $amka = isset($_POST['amka']) ? $_POST['amka'] : null; // ΑΜΚΑ για Ασθενείς
+    $role = 'Patient'; // Ρόλος του χρήστη
 
-    // Έλεγχος αν υπάρχει ήδη ο χρήστης με το ίδιο ΑΜΚΑ ή email
-    $check_sql = "SELECT * FROM xristis WHERE AT = ? OR Email = ?";
-    $stmt_check = $conn->prepare($check_sql);
-    $stmt_check->bind_param('ss', $amka, $email);
-    $stmt_check->execute();
-    $result = $stmt_check->get_result();
+    
+
+    // Έλεγχος για υπάρχον χρήστη με το ίδιο Email ή AMKA στον πίνακα `asthenis`
+    $stmt = $conn->prepare("SELECT * FROM xristis WHERE Email = ? OR AT IN (SELECT AT FROM asthenis WHERE P_AMKA = ?)");
+    $stmt->bind_param("ss", $email, vars: $amka);
+    $stmt->execute();
+    $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-        // Αν υπάρχει ήδη ασθενής με αυτό το ΑΜΚΑ ή email
-        echo "Υπάρχει ήδη ασθενής με αυτό το ΑΜΚΑ ή email.";
+        // Υπάρχει ήδη χρήστης με αυτό το Email ή ΑΜΚΑ
+        echo "Error: Ο χρήστης υπάρχει ήδη.";
     } else {
-        // Εισαγωγή νέου ασθενούς στον πίνακα xristis
-        $sql_xristis = "INSERT INTO xristis (AT, FirstName, LastName, Email, Password, Role) VALUES (?, ?, ?, ?, ?, 'Patient')";
-        $stmt_xristis = $conn->prepare($sql_xristis);
-        $stmt_xristis->bind_param('sssss', $amka, $first_name, $last_name, $email, $password);
+        // Ξεκινάμε μια συναλλαγή για να διασφαλίσουμε την ακεραιότητα των δεδομένων
+        $conn->begin_transaction();
 
-        if ($stmt_xristis->execute()) {
-            // Επιτυχής εγγραφή στον πίνακα xristis
-            // Εισαγωγή του ασθενούς στον πίνακα asthenis
-            $sql_asthenis = "INSERT INTO asthenis (AT, P_Name, P_Surname, P_DateOfEntry, P_AMKA) VALUES (?, ?, ?, NOW(), ?)";
-            $stmt_asthenis = $conn->prepare($sql_asthenis);
-            $stmt_asthenis->bind_param('ssss', $amka, $first_name, $last_name, $amka); // Χρήση του ίδιου ΑΜΚΑ και στον πίνακα `asthenis`
+        try {
+            // Εισαγωγή νέου χρήστη στον πίνακα `xristis`
+            $sql = "INSERT INTO xristis (FirstName, LastName, Email, Password, Role) VALUES (?, ?, ?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("sssss", $firstName, $lastName, $email, $password, $role);
 
-            if ($stmt_asthenis->execute()) {
-                // Επιτυχής εγγραφή και στους δύο πίνακες
-                echo "Ο ασθενής εγγράφηκε επιτυχώς!";
+            if ($stmt->execute()) {
+                // Πήραμε το AT (Αυτόματη αύξηση) από την τελευταία εισαγωγή
+                $new_at = $stmt->insert_id;
+
+                // Εισαγωγή στον πίνακα `asthenis` με βάση το νέο AT
+                $sql_patient = "INSERT INTO asthenis (P_AMKA, AT, P_Name, P_Surname, P_DateOfEntry) VALUES (?, ?, ?, ?, NOW())";
+                $stmt_patient = $conn->prepare($sql_patient);
+                $stmt_patient->bind_param("ssss", $amka, $new_at, $firstName, $lastName);
+
+                if ($stmt_patient->execute()) {
+                    // Επιτυχής εγγραφή και στους δύο πίνακες
+                    echo "Ο ασθενής εγγράφηκε επιτυχώς!";
+                    $conn->commit(); // Επιβεβαίωση της συναλλαγής
+                    header("Location: login.html"); // Ανακατεύθυνση στη σελίδα login
+                    exit();
+                } else {
+                    // Σφάλμα κατά την εισαγωγή στον πίνακα `asthenis`
+                    throw new Exception("Σφάλμα κατά την εισαγωγή στον πίνακα ασθενών: " . $stmt_patient->error);
+                }
+                $stmt_patient->close();
             } else {
-                // Σφάλμα κατά την εγγραφή στον πίνακα asthenis
-                echo "Σφάλμα κατά την εγγραφή στον πίνακα ασθενών: " . $conn->error;
+                // Σφάλμα κατά την εισαγωγή στον πίνακα `xristis`
+                throw new Exception("Σφάλμα κατά την εγγραφή: " . $stmt->error);
             }
-            $stmt_asthenis->close();
-        } else {
-            // Σφάλμα κατά την εγγραφή στον πίνακα xristis
-            echo "Σφάλμα κατά την εγγραφή: " . $conn->error;
+        } catch (Exception $e) {
+            $conn->rollback(); // Ακύρωση της συναλλαγής σε περίπτωση σφάλματος
+            echo $e->getMessage(); // Εμφάνιση του σφάλματος
         }
-        $stmt_xristis->close();
+
+        $stmt->close();
     }
 
     $stmt_check->close();
 }
 
-
-
-
-// Φόρτωση λίστας ασθενών
-$patients = $conn->query("SELECT Email, FirstName, LastName, AT FROM xristis WHERE Role = 'Patient'");
-
-// Χειρισμός εμφάνισης ραντεβού συγκεκριμένου ασθενούς
-$patient_appointments = [];
-if (isset($_GET['patient_email'])) {
-    $patient_email = $_GET['patient_email'];
-    $patient_appointments_query = $conn->query("SELECT * FROM rantevou WHERE patient_email = '$patient_email'");
-    while ($row = $patient_appointments_query->fetch_assoc()) {
-        $patient_appointments[] = $row;
-    }
-}
-// Κλείσιμο της σύνδεσης με τη βάση δεδομένων
 $conn->close();
 ?>
 
@@ -95,108 +88,116 @@ $conn->close();
 </head>
 <body>
 
-<!-- Εγγραφή νέου ασθενούς -->
-<section class="patients section">
-    <div class="container">
-        <h2>Εγγραφή Νέου Ασθενούς</h2>
-        <form action="patient_register.php" method="POST">
-            <div class="form-group">
-                <label for="first_name">Όνομα</label>
-                <input type="text" id="first_name" name="first_name" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="last_name">Επώνυμο</label>
-                <input type="text" id="last_name" name="last_name" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" name="email" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="amka">ΑΜΚΑ</label>
-                <input type="text" id="amka" name="amka" class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Κωδικός Πρόσβασης</label>
-                <input type="password" id="password" name="password" class="form-control" required>
-            </div>
-            <button type="submit" name="register_patient" class="btn btn-primary">Εγγραφή Ασθενούς</button>
-        </form>
-    </div>
-</section>
+<div class="container mt-5">
+    <h1 class="text-center">Γραμματεία - Διαχείριση Ασθενών</h1>
 
-<!-- Λίστα ασθενών -->
-<section class="patients-list section mt-5">
-    <div class="container">
-        <h2>Λίστα Ασθενών</h2>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Όνομα</th>
-                    <th>Επώνυμο</th>
-                    <th>Email</th>
-                    <th>ΑΜΚΑ</th>
-                    <th>Ραντεβού</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                if ($patients->num_rows > 0) {
-                    while ($row = $patients->fetch_assoc()) {
-                        echo "<tr>
-                                <td>{$row['FirstName']}</td>
-                                <td>{$row['LastName']}</td>
-                                <td>{$row['Email']}</td>
-                                <td>{$row['AT']}</td>
-                                <td><a href='?patient_email={$row['Email']}' class='btn btn-info'>Δείτε Ραντεβού</a></td>
-                            </tr>";
-                    }
-                } else {
-                    echo "<tr><td colspan='5' class='text-center'>Δεν βρέθηκαν ασθενείς</td></tr>";
-                }
-                ?>
-            </tbody>
-        </table>
-    </div>
-</section>
+    <!-- Εγγραφή νέου ασθενούς -->
+    <section class="patients section">
+        <div class="container">
+            <h2>Εγγραφή Νέου Ασθενούς</h2>
 
-<!-- Ραντεβού συγκεκριμένου ασθενούς -->
-<?php if (!empty($patient_appointments)): ?>
-<section class="appointments section mt-5">
-    <div class="container">
-        <h2>Ραντεβού Ασθενούς</h2>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Ημερομηνία</th>
-                    <th>Ώρα</th>
-                    <th>Περιγραφή</th>
-                    <th>Κατάσταση</th>
-                    <th>Γιατρός</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($patient_appointments as $appointment): ?>
+            <!-- Επιτυχές ή αποτυχημένο μήνυμα -->
+            <?php if (isset($success_message)): ?>
+                <div class="alert alert-success"><?= $success_message ?></div>
+            <?php elseif (isset($error_message)): ?>
+                <div class="alert alert-danger"><?= $error_message ?></div>
+            <?php endif; ?>
+
+            <form action="patient_register.php" method="POST">
+                <div class="form-group">
+                    <label for="first_name">Όνομα</label>
+                    <input type="text" id="first_name" name="first_name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="last_name">Επώνυμο</label>
+                    <input type="text" id="last_name" name="last_name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="amka">ΑΜΚΑ</label>
+                    <input type="text" id="amka" name="amka" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Κωδικός Πρόσβασης</label>
+                    <input type="password" id="password" name="password" class="form-control" required>
+                </div>
+                <button type="submit" name="register_patient" class="btn btn-primary">Εγγραφή Ασθενούς</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Λίστα ασθενών -->
+    <section class="patients-list section mt-5">
+        <div class="container">
+            <h2>Λίστα Ασθενών</h2>
+            <table class="table table-bordered">
+                <thead>
                     <tr>
-                        <td><?= $appointment['a_date'] ?></td>
-                        <td><?= $appointment['a_time'] ?></td>
-                        <td><?= $appointment['a_desc'] ?></td>
-                        <td><?= $appointment['a_state'] ?></td>
-                        <td><?= $appointment['a_doc'] ?></td>
+                        <th>Όνομα</th>
+                        <th>Επώνυμο</th>
+                        <th>Email</th>
+                        <th>ΑΜΚΑ</th>
+                        <th>Ραντεβού</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    </div>
-</section>
-<?php endif; ?>
+                </thead>
+                <tbody>
+                    <?php
+                    if ($patients->num_rows > 0) {
+                        while ($row = $patients->fetch_assoc()) {
+                            echo "<tr>
+                                    <td>{$row['FirstName']}</td>
+                                    <td>{$row['LastName']}</td>
+                                    <td>{$row['Email']}</td>
+                                    <td>{$row['AT']}</td>
+                                    <td><a href='?patient_email={$row['Email']}' class='btn btn-info'>Δείτε Ραντεβού</a></td>
+                                </tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='5' class='text-center'>Δεν βρέθηκαν ασθενείς</td></tr>";
+                    }
+                    ?>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Ραντεβού συγκεκριμένου ασθενούς -->
+    <?php if (!empty($patient_appointments)): ?>
+    <section class="appointments section mt-5">
+        <div class="container">
+            <h2>Ραντεβού Ασθενούς</h2>
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Ημερομηνία</th>
+                        <th>Ώρα</th>
+                        <th>Περιγραφή</th>
+                        <th>Κατάσταση</th>
+                        <th>Γιατρός</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($patient_appointments as $appointment): ?>
+                        <tr>
+                            <td><?= $appointment['a_date'] ?></td>
+                            <td><?= $appointment['a_time'] ?></td>
+                            <td><?= $appointment['a_desc'] ?></td>
+                            <td><?= $appointment['a_state'] ?></td>
+                            <td><?= $appointment['a_doc'] ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    </section>
+    <?php endif; ?>
+</div>
 
 <!-- Scripts -->
 <script src="js/jquery.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 </body>
 </html>
-
-<?php
-$conn->close();
-?>
