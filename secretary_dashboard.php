@@ -1,15 +1,15 @@
 <?php
-require_once 'db_config.php'; // Σύνδεση με τη βάση δεδομένων
 session_start();
+require_once 'db_config.php'; // Σύνδεση με τη βάση δεδομένων
 
-// Ensure the user is logged in and has the role of Secretary
+// Έλεγχος αν ο χρήστης είναι συνδεδεμένος και έχει το ρόλο της γραμματείας
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Secretary') {
     header('Location: login.html');
     exit();
 }
 
 // Ανάκτηση λίστας ασθενών
-$patients = $conn->query("SELECT Email, FirstName, LastName, AT FROM xristis WHERE Role = 'Patient'");
+$patients = $conn->query("SELECT x.Email, x.FirstName, x.LastName, x.AT, a.P_AMKA FROM xristis x LEFT JOIN asthenis a ON x.AT = a.AT WHERE x.Role = 'Patient'");
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Λήψη των δεδομένων από τη φόρμα
@@ -17,17 +17,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $lastName = $_POST['last_name']; // Επώνυμο
     $email = $_POST['email']; // Email
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT); // Κρυπτογραφημένος κωδικός
-    $amka = isset($_POST['amka']) ? $_POST['amka'] : null; // ΑΜΚΑ για Ασθενείς
-    $role = isset($_POST['role']) ? $_POST['role'] : 'Patient'; // Το role ορίζεται από τη φόρμα (default: Patient)
+    $amka = $_POST['amka']; // ΑΜΚΑ
+    $at = $_POST['at']; // Αριθμός Ταυτότητας (AT)
+    $role = 'Patient'; // Ρόλος, προεπιλογή: Patient
 
-    // Έλεγχος για υπάρχον χρήστη με το ίδιο Email ή AMKA στον πίνακα `asthenis`
-    $stmt = $conn->prepare("SELECT * FROM xristis WHERE Email = ? OR AT IN (SELECT AT FROM asthenis WHERE P_AMKA = ?)");
-    $stmt->bind_param("ss", $email, $amka);
+    // Έλεγχος για υπάρχον χρήστη με το ίδιο Email, ΑΜΚΑ ή AT
+    $stmt = $conn->prepare("SELECT * FROM xristis x LEFT JOIN asthenis a ON x.AT = a.AT WHERE x.Email = ? OR a.P_AMKA = ? OR x.AT = ?");
+    $stmt->bind_param("sss", $email, $amka, $at);
     $stmt->execute();
     $result = $stmt->get_result();
 
     if ($result->num_rows > 0) {
-        // Υπάρχει ήδη χρήστης με αυτό το Email ή ΑΜΚΑ
+        // Υπάρχει ήδη χρήστης με αυτό το Email, ΑΜΚΑ ή AT
         echo "Error: Ο χρήστης υπάρχει ήδη.";
     } else {
         // Ξεκινάμε μια συναλλαγή για να διασφαλίσουμε την ακεραιότητα των δεδομένων
@@ -35,24 +36,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         try {
             // Εισαγωγή νέου χρήστη στον πίνακα `xristis`
-            $sql = "INSERT INTO xristis (FirstName, LastName, Email, Password, Role) VALUES (?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO xristis (FirstName, LastName, Email, Password, Role, AT) VALUES (?, ?, ?, ?, ?, ?)";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param("sssss", $firstName, $lastName, $email, $password, $role);
+            $stmt->bind_param("ssssss", $firstName, $lastName, $email, $password, $role, $at);
 
             if ($stmt->execute()) {
-                // Πήραμε το AT (Αυτόματη αύξηση) από την τελευταία εισαγωγή
+                // Πήραμε το AT από την τελευταία εισαγωγή
                 $new_at = $stmt->insert_id;
 
                 // Εισαγωγή στον πίνακα `asthenis` με βάση το νέο AT
                 $sql_patient = "INSERT INTO asthenis (P_AMKA, AT, P_Name, P_Surname, P_DateOfEntry) VALUES (?, ?, ?, ?, NOW())";
                 $stmt_patient = $conn->prepare($sql_patient);
-                $stmt_patient->bind_param("ssss", $amka, $new_at, $firstName, $lastName);
+                $stmt_patient->bind_param("ssss", $amka, $at, $firstName, $lastName);
 
                 if ($stmt_patient->execute()) {
                     // Επιτυχής εγγραφή και στους δύο πίνακες
                     echo "Ο ασθενής εγγράφηκε επιτυχώς!";
                     $conn->commit(); // Επιβεβαίωση της συναλλαγής
-                    header("Location: login.html"); // Ανακατεύθυνση στη σελίδα login
                     exit();
                 } else {
                     // Σφάλμα κατά την εισαγωγή στον πίνακα `asthenis`
@@ -77,6 +77,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 $conn->close();
 ?>
 
+
 <!doctype html>
 <html lang="el">
 <head>
@@ -92,49 +93,37 @@ $conn->close();
 
     <!-- Εγγραφή νέου ασθενούς -->
     <section class="patients section">
-        <div class="container">
-            <h2>Εγγραφή Νέου Ασθενούς</h2>
+    <div class="container mt-5">
+    <h1 class="text-center">Εγγραφή Νέου Χρήστη</h1>
 
-            <!-- Επιτυχές ή αποτυχημένο μήνυμα -->
-            <?php if (isset($success_message)): ?>
-                <div class="alert alert-success"><?= $success_message ?></div>
-            <?php elseif (isset($error_message)): ?>
-                <div class="alert alert-danger"><?= $error_message ?></div>
-            <?php endif; ?>
-
-            <form action="patient_register.php" method="POST">
-                <div class="form-group">
-                    <label for="first_name">Όνομα</label>
-                    <input type="text" id="first_name" name="first_name" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="last_name">Επώνυμο</label>
-                    <input type="text" id="last_name" name="last_name" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="amka">ΑΜΚΑ</label>
-                    <input type="text" id="amka" name="amka" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Κωδικός Πρόσβασης</label>
-                    <input type="password" id="password" name="password" class="form-control" required>
-                </div>
-                <!-- Επιλογή ρόλου -->
-                <div class="form-group">
-                    <label for="role">Ρόλος</label>
-                    <select id="role" name="role" class="form-control" required>
-                        <option value="Secretary">Secretary</option>
-                        <option value="Doctor">Doctor</option>
-                        <option value="Patient">Patient</option>
-                    </select>
-                </div>
-                <button type="submit" name="register_patient" class="btn btn-primary">Εγγραφή Χρήστη</button>
-            </form>
+    <form action="secretary_dashboard.php" method="POST">
+        <div class="form-group">
+            <label for="first_name">Όνομα</label>
+            <input type="text" id="first_name" name="first_name" class="form-control" required>
         </div>
+        <div class="form-group">
+            <label for="last_name">Επώνυμο</label>
+            <input type="text" id="last_name" name="last_name" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="amka">ΑΜΚΑ</label>
+            <input type="text" id="amka" name="amka" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="at">Αριθμός Ταυτότητας (AT)</label>
+            <input type="text" id="at" name="at" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Κωδικός Πρόσβασης</label>
+            <input type="password" id="password" name="password" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Εγγραφή Χρήστη</button>
+    </form>
+</div>
     </section>
 
     <!-- Λίστα ασθενών -->
