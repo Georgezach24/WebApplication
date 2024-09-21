@@ -11,6 +11,40 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Secretary') {
 // Ανάκτηση λίστας ασθενών
 $patients = $conn->query("SELECT x.Email, x.FirstName, x.LastName, x.AT, a.P_AMKA FROM xristis x LEFT JOIN asthenis a ON x.AT = a.AT WHERE x.Role = 'Patient'");
 
+// Ανάκτηση ραντεβού συγκεκριμένου ασθενούς αν έχει επιλεγεί
+$patient_appointments = [];
+if (isset($_GET['patient_email'])) {
+    $patient_email = $_GET['patient_email'];
+
+    // SQL ερώτηση για ανάκτηση ραντεβού συγκεκριμένου ασθενούς μέσω του πίνακα books
+    $stmt_appointments = $conn->prepare("
+        SELECT r.a_date, r.a_time, r.a_desc, r.a_state, d.D_Name AS doctor_first_name, d.D_Surname AS doctor_last_name
+        FROM rantevou r
+        JOIN books b ON r.id_appointment = b.id_appointment
+        JOIN asthenis a ON b.AT = a.AT
+        JOIN xristis x ON a.AT = x.AT
+        JOIN iatros d ON r.a_doc = d.D_id
+        WHERE x.Email = ?
+    ");
+    
+    $stmt_appointments->bind_param("s", $patient_email);
+    $stmt_appointments->execute();
+    $result_appointments = $stmt_appointments->get_result();
+    
+    while ($row = $result_appointments->fetch_assoc()) {
+        $patient_appointments[] = [
+            'a_date' => $row['a_date'],
+            'a_time' => $row['a_time'],
+            'a_desc' => $row['a_desc'],
+            'a_state' => $row['a_state'],
+            'a_doc' => $row['doctor_first_name'] . ' ' . $row['doctor_last_name']
+        ];
+    }
+
+    $stmt_appointments->close();
+}
+
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Λήψη των δεδομένων από τη φόρμα
     $firstName = $_POST['first_name']; // Όνομα
@@ -85,10 +119,43 @@ $conn->close();
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Γραμματεία - Διαχείριση Ασθενών</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    
 </head>
 <body>
 
 <div class="container mt-5">
+    <!-- Header Area -->
+<header class="header">
+    <div class="header-inner">
+        <div class="container">
+            <div class="inner">
+                <div class="row">
+                    <div class="col-lg-3 col-md-3 col-12">
+                        <!-- Logo -->
+                        <div class="logo">
+                            <a href="index.php"><img src="img/logo.png" alt="#"></a>
+                        </div>
+                    </div>
+                    <div class="col-lg-7 col-md-9 col-12">
+                        <div class="main-menu">
+                            <nav class="navigation">
+                            </nav>
+                            <!-- Subtle separator line -->
+                            <div class="nav-separator"></div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-12">
+                    <div class="get-quote">
+                        <a href="logout.php" class="btn btn-logout">Logout</a>
+                    </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+<!-- End Header Area -->
     <h1 class="text-center">Γραμματεία - Διαχείριση Ασθενών</h1>
 
     <!-- Εγγραφή νέου ασθενούς -->
@@ -137,6 +204,7 @@ $conn->close();
                         <th>Επώνυμο</th>
                         <th>Email</th>
                         <th>ΑΜΚΑ</th>
+                        <th>AT</th>
                         <th>Ραντεβού</th>
                     </tr>
                 </thead>
@@ -148,6 +216,7 @@ $conn->close();
                                     <td>{$row['FirstName']}</td>
                                     <td>{$row['LastName']}</td>
                                     <td>{$row['Email']}</td>
+                                    <td>{$row['P_AMKA']}</td>
                                     <td>{$row['AT']}</td>
                                     <td><a href='?patient_email={$row['Email']}' class='btn btn-info'>Δείτε Ραντεβού</a></td>
                                 </tr>";
@@ -161,37 +230,37 @@ $conn->close();
         </div>
     </section>
 
-    <!-- Ραντεβού συγκεκριμένου ασθενούς -->
-    <?php if (!empty($patient_appointments)): ?>
-    <section class="appointments section mt-5">
-        <div class="container">
-            <h2>Ραντεβού Ασθενούς</h2>
-            <table class="table table-bordered">
-                <thead>
+   <!-- Ραντεβού συγκεκριμένου ασθενούς -->
+<?php if (!empty($patient_appointments)): ?>
+<section class="appointments section mt-5">
+    <div class="container">
+        <h2>Ραντεβού Ασθενούς</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Ημερομηνία</th>
+                    <th>Ώρα</th>
+                    <th>Περιγραφή</th>
+                    <th>Κατάσταση</th>
+                    <th>Γιατρός</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($patient_appointments as $appointment): ?>
                     <tr>
-                        <th>Ημερομηνία</th>
-                        <th>Ώρα</th>
-                        <th>Περιγραφή</th>
-                        <th>Κατάσταση</th>
-                        <th>Γιατρός</th>
+                        <td><?= $appointment['a_date'] ?></td>
+                        <td><?= $appointment['a_time'] ?></td>
+                        <td><?= $appointment['a_desc'] ?></td>
+                        <td><?= $appointment['a_state'] ?></td>
+                        <td><?= $appointment['a_doc'] ?></td>
                     </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($patient_appointments as $appointment): ?>
-                        <tr>
-                            <td><?= $appointment['a_date'] ?></td>
-                            <td><?= $appointment['a_time'] ?></td>
-                            <td><?= $appointment['a_desc'] ?></td>
-                            <td><?= $appointment['a_state'] ?></td>
-                            <td><?= $appointment['a_doc'] ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-    </section>
-    <?php endif; ?>
-</div>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</section>
+<?php endif; ?>
+
 
 <!-- Scripts -->
 <script src="js/jquery.min.js"></script>

@@ -4,7 +4,19 @@
  * Copyright 2011-2017 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
  */
+ .btn-logout {
+    background-color: #007bff; /* Μπλε χρώμα */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
 
+    .btn-logout:hover {
+        background-color: #0056b3; /* Χρώμα που αλλάζει όταν περνάει το ποντίκι από πάνω */
+    }
 :root {
     --blue: #007bff;
     --indigo: #6610f2;

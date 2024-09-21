@@ -48,6 +48,21 @@ Version:	1.1
 /*=============================
 	Global CSS 
 ===============================*/
+
+.btn-logout {
+    background-color: #007bff; /* Μπλε χρώμα */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+    .btn-logout:hover {
+        background-color: #0056b3; /* Χρώμα που αλλάζει όταν περνάει το ποντίκι από πάνω */
+    }
+
 body{
     font-family: 'Poppins', sans-serif;
 	font-weight: 400;
