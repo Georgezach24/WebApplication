@@ -182,6 +182,3 @@ $conn->close();
 </body>
 </html>
 
-<?php
-$conn->close();
-?>
