@@ -31,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt_patient->bind_param("ssss", $amka, $at, $firstName, $lastName);
             if ($stmt_patient->execute()) {
                 echo "Ο ασθενής εγγράφηκε επιτυχώς!" . $stmt_patient->error;
-                header("Location: login.html");
+                header("Location: success_register.html");
             } else {
                 echo "Σφάλμα κατά την εισαγωγή στον πίνακα ασθενών: " . $stmt_patient->error;
             }
