@@ -1,4 +1,4 @@
-<?php
+<<?php
 session_start();
 require_once 'db_config.php'; // Include your database configuration file
 
@@ -8,6 +8,8 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Doctor') {
     exit();
 }
 
+$doctor_email = $_SESSION['user_email']; // Get the logged-in doctor's email
+
 // Create the connection
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
@@ -16,11 +18,38 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetch list of appointments, patients, and medical history
-$appointments = $conn->query("SELECT id_appointment, a_date, a_time, a_desc, a_state, a_doc FROM rantevou");
-$patients = $conn->query("SELECT Email, FirstName, LastName, AT FROM xristis");
-$history = $conn->query("SELECT id_entry, e_doc, e_healthproblems, e_cure FROM eggrafi");
+// Fetch doctor D_id based on email
+$stmt_doc = $conn->prepare("
+    SELECT i.D_id 
+    FROM iatros i 
+    JOIN xristis x ON i.D_Name = x.FirstName AND i.D_Surname = x.LastName 
+    WHERE x.Email = ?
+");
+$stmt_doc->bind_param("s", $doctor_email);
+$stmt_doc->execute();
+$stmt_doc->bind_result($doctorID);
+$stmt_doc->fetch();
+$stmt_doc->close();
 
+// Fetch appointments related to the logged-in doctor using D_id
+$appointments = $conn->query("
+    SELECT id_appointment, a_date, a_time, a_desc, a_state 
+    FROM rantevou 
+    WHERE a_doc = '$doctorID'
+");
+
+// Fetch patients (no join, we retrieve all patients)
+$patients = $conn->query("
+    SELECT AT, P_Name, P_Surname, P_AMKA 
+    FROM asthenis
+");
+
+// Fetch medical history related to the logged-in doctor using D_id
+$history = $conn->query("
+    SELECT id_entry, e_healthproblems, e_cure 
+    FROM eggrafi 
+    WHERE e_doc = '$doctorID'
+");
 ?>
 
 <!doctype html>
@@ -36,93 +65,6 @@ $history = $conn->query("SELECT id_entry, e_doc, e_healthproblems, e_cure FROM e
     <link rel="stylesheet" href="css/icofont.css">
     <link rel="stylesheet" href="css/style.css">
 
-    <style>
-        /* Custom styling for better layout */
-        .header-inner {
-            margin-bottom: 30px;
-        }
-
-        /* Remove the topbar and extra contact information */
-        .topbar, .top-contact {
-            display: none;
-        }
-
-        .section-title {
-            margin-bottom: 40px;
-            text-align: center;
-        }
-
-        .appointments, .patients, .history {
-            margin-bottom: 50px;
-        }
-
-        .appointments h3, .patients h3, .history h3 {
-            margin-bottom: 20px;
-        }
-
-        .appointments p, .patients p, .history p {
-            margin-bottom: 15px;
-        }
-
-        .appointments a, .patients a, .history a {
-            margin-top: 20px;
-        }
-
-        /* Styling for tables */
-        .table-responsive {
-            margin-top: 20px;
-        }
-
-        /* Footer styling */
-        footer {
-            margin-top: 50px;
-            padding: 30px 0;
-            background: #f8f9fa;
-        }
-
-        /* Spacing for navigation links */
-        .nav.menu > li {
-            margin-right: 20px;
-        }
-
-        .appointments, .patients, .history {
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-        }
-
-        .appointments p, .patients p, .history p {
-            font-size: 16px;
-            color: #333;
-        }
-
-        /* Add subtle separator line between menu and content */
-        .nav-separator {
-            border-bottom: 1px solid #e0e0e0;
-            margin-bottom: 20px;
-        }
-
-        /* Footer links and contact information layout */
-        .footer-bottom {
-            margin-top: 30px;
-        }
-
-        .footer-links {
-            display: none;
-        }
-
-        .footer-contact p {
-            margin-bottom: 10px;
-        }
-
-        .footer-contact i {
-            margin-right: 10px;
-        }
-
-        .btn {
-            margin-top: 10px;
-        }
-    </style>
 </head>
 <body>
 
@@ -135,21 +77,16 @@ $history = $conn->query("SELECT id_entry, e_doc, e_healthproblems, e_cure FROM e
                     <div class="col-lg-3 col-md-3 col-12">
                         <!-- Logo -->
                         <div class="logo">
-                            <a href="index.php"><img src="img/logo.png" alt="#"></a>
+                            <a href="index.html"><img src="img/logo.png" alt="#"></a>
                         </div>
                     </div>
                     <div class="col-lg-7 col-md-9 col-12">
                         <div class="main-menu">
                             <nav class="navigation">
                                 <ul class="nav menu">
-                                    <li><a href="index.php">Αρχική</a></li>
-                                    <li class="active"><a href="doctor_dashboard.php">Dashboard Γιατρού</a></li>
-                                    <li><a href="manage_appointments.php">Διαχείριση Ραντεβού</a></li>
-                                    <li><a href="manage_patients.php">Διαχείριση Ασθενών</a></li>
-                                    <li><a href="manage_history.php">Διαχείριση Ιατρικού Ιστορικού</a></li>
+                                    <li><a href="register_user.php">Εγγραφή Νέου Χρήστη</a></li> <!-- Add user link -->
                                 </ul>
                             </nav>
-                            <!-- Subtle separator line -->
                             <div class="nav-separator"></div>
                         </div>
                     </div>
@@ -163,7 +100,6 @@ $history = $conn->query("SELECT id_entry, e_doc, e_healthproblems, e_cure FROM e
         </div>
     </div>
 </header>
-<!-- End Header Area -->
 
 <!-- Appointments Section -->
 <section class="appointments section">
@@ -179,7 +115,6 @@ $history = $conn->query("SELECT id_entry, e_doc, e_healthproblems, e_cure FROM e
                     <th>Ώρα</th>
                     <th>Περιγραφή</th>
                     <th>Κατάσταση</th>
-                    <th>Γιατρός</th>
                     <th>Ενέργειες</th>
                 </tr>
                 </thead>
@@ -192,7 +127,6 @@ $history = $conn->query("SELECT id_entry, e_doc, e_healthproblems, e_cure FROM e
                                 <td>{$row['a_time']}</td>
                                 <td>{$row['a_desc']}</td>
                                 <td>{$row['a_state']}</td>
-                                <td>{$row['a_doc']}</td>
                                 <td>
                                     <a href='edit_appointment.php?id={$row['id_appointment']}' class='btn'>Επεξεργασία</a> |
                                     <a href='delete_appointment.php?id={$row['id_appointment']}' class='btn btn-danger'>Ακύρωση</a>
@@ -200,14 +134,18 @@ $history = $conn->query("SELECT id_entry, e_doc, e_healthproblems, e_cure FROM e
                             </tr>";
                     }
                 } else {
-                    echo "<tr><td colspan='6' class='text-center'>Δεν βρέθηκαν ραντεβού</td></tr>";
+                    echo "<tr><td colspan='5' class='text-center'>Δεν βρέθηκαν ραντεβού</td></tr>";
                 }
                 ?>
                 </tbody>
             </table>
         </div>
+
+        <!-- Κουμπί για αναζήτηση όλων των ραντεβού -->
+        <a href="search_all_appointments.php" class="btn btn-primary mt-3">Αναζήτηση Όλων των Ραντεβού</a>
     </div>
 </section>
+
 
 <!-- Patients Section -->
 <section class="patients section">
@@ -221,7 +159,7 @@ $history = $conn->query("SELECT id_entry, e_doc, e_healthproblems, e_cure FROM e
                 <tr>
                     <th>Όνομα</th>
                     <th>Επώνυμο</th>
-                    <th>Email</th>
+                    <th>AMKA</th>
                     <th>ΑΤ</th>
                     <th>Ενέργειες</th>
                 </tr>
@@ -231,13 +169,13 @@ $history = $conn->query("SELECT id_entry, e_doc, e_healthproblems, e_cure FROM e
                 if ($patients->num_rows > 0) {
                     while ($row = $patients->fetch_assoc()) {
                         echo "<tr>
-                                <td>{$row['FirstName']}</td>
-                                <td>{$row['LastName']}</td>
-                                <td>{$row['Email']}</td>
+                                <td>{$row['P_Name']}</td>
+                                <td>{$row['P_Surname']}</td>
+                                <td>{$row['P_AMKA']}</td>
                                 <td>{$row['AT']}</td>
                                 <td>
-                                    <a href='edit_patient.php?id={$row['Email']}' class='btn'>Επεξεργασία</a> |
-                                    <a href='delete_patient.php?id={$row['Email']}' class='btn btn-danger'>Διαγραφή</a>
+                                    <a href='edit_patient.php?id={$row['AT']}' class='btn'>Επεξεργασία</a> |
+                                    <a href='delete_patient.php?id={$row['AT']}' class='btn btn-danger'>Διαγραφή</a>
                                 </td>
                             </tr>";
                     }
@@ -261,7 +199,6 @@ $history = $conn->query("SELECT id_entry, e_doc, e_healthproblems, e_cure FROM e
             <table class="table table-bordered">
                 <thead>
                 <tr>
-                    <th>Γιατρός</th>
                     <th>Προβλήματα Υγείας</th>
                     <th>Θεραπεία</th>
                     <th>Ενέργειες</th>
@@ -272,17 +209,17 @@ $history = $conn->query("SELECT id_entry, e_doc, e_healthproblems, e_cure FROM e
                 if ($history->num_rows > 0) {
                     while ($row = $history->fetch_assoc()) {
                         echo "<tr>
-                                <td>{$row['e_doc']}</td>
                                 <td>{$row['e_healthproblems']}</td>
                                 <td>{$row['e_cure']}</td>
                                 <td>
                                     <a href='edit_history.php?id={$row['id_entry']}' class='btn'>Επεξεργασία</a> |
-                                    <a href='delete_history.php?id={$row['id_entry']}' class='btn btn-danger'>Διαγραφή</a>
+                                    <a href='delete_history.php?id={$row['id_entry']}' class='btn btn-danger'>Διαγραφή</a> |
+                                    <a href='export_history.php?id={$row['id_entry']}' class='btn'>Εξαγωγή σε PDF/Excel</a>
                                 </td>
                             </tr>";
                     }
                 } else {
-                    echo "<tr><td colspan='4' class='text-center'>Δεν βρέθηκαν καταχωρήσεις στο ιστορικό</td></tr>";
+                    echo "<tr><td colspan='3' class='text-center'>Δεν βρέθηκαν καταχωρήσεις στο ιστορικό</td></tr>";
                 }
                 ?>
                 </tbody>
@@ -308,7 +245,6 @@ $history = $conn->query("SELECT id_entry, e_doc, e_healthproblems, e_cure FROM e
         </div>
     </div>
 </footer>
-<!-- End Footer -->
 
 <!-- Scripts -->
 <script src="js/jquery.min.js"></script>
