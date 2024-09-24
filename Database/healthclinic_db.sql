@@ -126,15 +126,6 @@ CREATE TABLE `istoriko` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `is_a`
---
-
-CREATE TABLE `is_a` (
-  `id_isa` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
 --
 -- Table structure for table `rantevou`
 --
