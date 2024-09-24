@@ -27,19 +27,32 @@ $stmt->bind_result($patientAT);
 $stmt->fetch();
 $stmt->close();
 
+// Ανάκτηση της λίστας των γιατρών
+$doctors = [];
+$stmt = $conn->prepare("SELECT D_id, D_Name, D_Surname FROM iatros");
+$stmt->execute();
+$result = $stmt->get_result();
+
+while ($row = $result->fetch_assoc()) {
+    $doctors[] = $row;
+}
+
+$stmt->close();
+
 // Χειρισμός της υποβολής του ραντεβού
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $date = $_POST['date'];
     $time = $_POST['time'];
     $description = $_POST['description'];
+    $doctor_id = $_POST['doctor']; // ID του επιλεγμένου γιατρού
 
     // Έλεγχος για κενά πεδία
-    if (empty($date) || empty($time) || empty($description)) {
+    if (empty($date) || empty($time) || empty($description) || empty($doctor_id)) {
         $error = "Όλα τα πεδία είναι υποχρεωτικά.";
     } else {
         // Εισαγωγή του ραντεβού στον πίνακα rantevou
-        $stmt = $conn->prepare("INSERT INTO rantevou (a_date, a_time, a_desc, a_state) VALUES (?, ?, ?, 'Pending')");
-        $stmt->bind_param("sss", $date, $time, $description);
+        $stmt = $conn->prepare("INSERT INTO rantevou (a_date, a_time, a_desc, a_doc, a_state) VALUES (?, ?, ?, ?, 'Pending')");
+        $stmt->bind_param("ssss", $date, $time, $description, $doctor_id);
 
         if ($stmt->execute()) {
             // Λήψη του ID του νέου ραντεβού
@@ -62,6 +75,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->close();
     }
 }
+
+$conn->close();
+?>
+
 
 $conn->close();
 ?>
@@ -91,18 +108,6 @@ $conn->close();
                         <!-- Logo -->
                         <div class="logo">
                             <a href="index.php"><img src="img/logo.png" alt="#"></a>
-                        </div>
-                    </div>
-                    <div class="col-lg-7 col-md-9 col-12">
-                        <div class="main-menu">
-                            <nav class="navigation">
-                                <ul class="nav menu">
-                                    <li><a href="index.php">Αρχική</a></li>
-                                    <li><a href="patient_dashboard.php">Προφίλ Ασθενούς</a></li>
-                                    <li><a href="appointments.php">Ραντεβού</a></li>
-                                    <li><a href="medical_history.php">Ιστορικό</a></li>
-                                </ul>
-                            </nav>
                         </div>
                     </div>
                     <div class="col-lg-2 col-12">
@@ -148,6 +153,18 @@ $conn->close();
                         <label for="description">Περιγραφή:</label>
                         <textarea id="description" name="description" class="form-control" rows="4" required></textarea>
                     </div>
+                    <div class="form-group">
+                        <label for="doctor">Επιλέξτε Γιατρό:</label>
+                        <select id="doctor" name="doctor" class="form-control" required>
+                            <option value="">-- Επιλέξτε Γιατρό --</option>
+                            <?php foreach ($doctors as $doctor): ?>
+                                <option value="<?php echo $doctor['D_id']; ?>">
+                                    <?php echo $doctor['D_Name'] . " " . $doctor['D_Surname']; ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
                     <button type="submit" class="btn primary">Δημιουργία Ραντεβού</button>
                 </form>
             </div>

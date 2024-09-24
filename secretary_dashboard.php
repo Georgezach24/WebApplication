@@ -66,12 +66,12 @@ $conn->close();
 
             <form action="patient_register.php" method="POST">
                 <div class="form-group">
-                    <label for="first_name">Όνομα</label>
-                    <input type="text" id="first_name" name="first_name" class="form-control" required>
+                    <label for="firstName">Όνομα</label>
+                    <input type="text" id="firstName" name="firstName" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label for="last_name">Επώνυμο</label>
-                    <input type="text" id="last_name" name="last_name" class="form-control" required>
+                    <label for="lastΝame">Επώνυμο</label>
+                    <input type="text" id="lastName" name="lastName" class="form-control" required>
                 </div>
                 <div class="form-group">
                     <label for="email">Email</label>
@@ -113,7 +113,7 @@ $conn->close();
                     <?php
                     if ($patients->num_rows > 0) {
                         while ($row = $patients->fetch_assoc()) {
-                            $collapseId = "appointments" . $row['Email']; // Unique ID for each patient
+                            $collapseId = "appointments" . $row['Email']; 
                             echo "<tr>
                                     <td>{$row['FirstName']}</td>
                                     <td>{$row['LastName']}</td>
