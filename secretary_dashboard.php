@@ -11,39 +11,6 @@ if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Secretary') {
 // Ανάκτηση λίστας ασθενών
 $patients = $conn->query("SELECT x.Email, x.FirstName, x.LastName, x.AT, a.P_AMKA FROM xristis x LEFT JOIN asthenis a ON x.AT = a.AT WHERE x.Role = 'Patient'");
 
-// Ανάκτηση ραντεβού συγκεκριμένου ασθενούς αν έχει επιλεγεί
-$patient_appointments = [];
-if (isset($_GET['patient_email'])) {
-    $patient_email = $_GET['patient_email'];
-
-    // SQL ερώτηση για ανάκτηση ραντεβού συγκεκριμένου ασθενούς μέσω του πίνακα books
-    $stmt_appointments = $conn->prepare("
-        SELECT r.a_date, r.a_time, r.a_desc, r.a_state, d.D_Name AS doctor_first_name, d.D_Surname AS doctor_last_name
-        FROM rantevou r
-        JOIN books b ON r.id_appointment = b.id_appointment
-        JOIN asthenis a ON b.AT = a.AT
-        JOIN xristis x ON a.AT = x.AT
-        JOIN iatros d ON r.a_doc = d.D_id
-        WHERE x.Email = ?
-    ");
-    
-    $stmt_appointments->bind_param("s", $patient_email);
-    $stmt_appointments->execute();
-    $result_appointments = $stmt_appointments->get_result();
-    
-    while ($row = $result_appointments->fetch_assoc()) {
-        $patient_appointments[] = [
-            'a_date' => $row['a_date'],
-            'a_time' => $row['a_time'],
-            'a_desc' => $row['a_desc'],
-            'a_state' => $row['a_state'],
-            'a_doc' => $row['doctor_first_name'] . ' ' . $row['doctor_last_name']
-        ];
-    }
-
-    $stmt_appointments->close();
-}
-
 $conn->close();
 ?>
 
@@ -99,12 +66,12 @@ $conn->close();
 
             <form action="patient_register.php" method="POST">
                 <div class="form-group">
-                    <label for="first_name">Όνομα</label>
-                    <input type="text" id="first_name" name="first_name" class="form-control" required>
+                    <label for="firstName">Όνομα</label>
+                    <input type="text" id="firstName" name="firstName" class="form-control" required>
                 </div>
                 <div class="form-group">
-                    <label for="last_name">Επώνυμο</label>
-                    <input type="text" id="last_name" name="last_name" class="form-control" required>
+                    <label for="lastΝame">Επώνυμο</label>
+                    <input type="text" id="lastName" name="lastName" class="form-control" required>
                 </div>
                 <div class="form-group">
                     <label for="email">Email</label>
@@ -146,47 +113,20 @@ $conn->close();
                     <?php
                     if ($patients->num_rows > 0) {
                         while ($row = $patients->fetch_assoc()) {
-                            $collapseId = "appointments" . $row['Email']; // Unique ID for each patient
+                            $collapseId = "appointments" . $row['Email']; 
                             echo "<tr>
                                     <td>{$row['FirstName']}</td>
                                     <td>{$row['LastName']}</td>
                                     <td>{$row['Email']}</td>
                                     <td>{$row['P_AMKA']}</td>
                                     <td>{$row['AT']}</td>
-                                    <td><button class='btn btn-info' type='button' data-toggle='collapse' data-target='#{$collapseId}'>Δείτε Ραντεβού</button></td>
+                                    <td><button class='btn btn-info show-appointments' data-email='{$row['Email']}'>Δείτε Ραντεβού</button></td>
                                   </tr>";
 
-                            // Ραντεβού του ασθενούς
+                            // Placeholder για τα ραντεβού
                             echo "<tr><td colspan='6'>
-                                    <div id='{$collapseId}' class='collapse'>
-                                        <div class='card card-body'>
-                                            <h5>Ραντεβού:</h5>";
-                            if (!empty($patient_appointments)) {
-                                echo "<table class='table table-sm'>
-                                        <thead>
-                                            <tr>
-                                                <th>Ημερομηνία</th>
-                                                <th>Ώρα</th>
-                                                <th>Περιγραφή</th>
-                                                <th>Κατάσταση</th>
-                                                <th>Γιατρός</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>";
-                                foreach ($patient_appointments as $appointment) {
-                                    echo "<tr>
-                                            <td>{$appointment['a_date']}</td>
-                                            <td>{$appointment['a_time']}</td>
-                                            <td>{$appointment['a_desc']}</td>
-                                            <td>{$appointment['a_state']}</td>
-                                            <td>{$appointment['a_doc']}</td>
-                                          </tr>";
-                                }
-                                echo "</tbody></table>";
-                            } else {
-                                echo "<p>Δεν βρέθηκαν ραντεβού για τον ασθενή.</p>";
-                            }
-                            echo "</div></div></td></tr>";
+                                    <div id='{$collapseId}' class='appointment-details'></div>
+                                  </td></tr>";
                         }
                     } else {
                         echo "<tr><td colspan='6' class='text-center'>Δεν βρέθηκαν ασθενείς</td></tr>";
@@ -198,10 +138,59 @@ $conn->close();
     </section>
 
     <!-- Scripts -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+    $('.show-appointments').click(function() {
+        const email = $(this).data('email');
+        const targetDiv = $(this).closest('tr').next().find('.appointment-details');
+
+        // Έλεγχος αν το div είναι ήδη ανοιχτό
+        if (targetDiv.is(':visible')) {
+            // Αν είναι ανοιχτό, το κλείνουμε
+            targetDiv.slideUp();
+        } else {
+            // Αν είναι κλειστό, κάνουμε AJAX αίτημα για τα ραντεβού
+            $.ajax({
+                url: 'get_appointments.php',
+                type: 'POST',
+                data: { patient_email: email },
+                success: function(response) {
+                    const data = JSON.parse(response);
+                    if (data.error) {
+                        targetDiv.html(`<p>${data.error}</p>`);  // Εμφανίζει το σφάλμα αν υπάρχει
+                    } else if (data.length > 0) {
+                        let html = '<table class="table table-sm"><thead><tr><th>Ημερομηνία</th><th>Ώρα</th><th>Περιγραφή</th><th>Κατάσταση</th><th>Γιατρός</th></tr></thead><tbody>';
+                        data.forEach(function(app) {
+                            html += `<tr>
+                                        <td>${app.a_date}</td>
+                                        <td>${app.a_time}</td>
+                                        <td>${app.a_desc}</td>
+                                        <td>${app.a_state}</td>
+                                        <td>${app.a_doc}</td>
+                                     </tr>`;
+                        });
+                        html += '</tbody></table>';
+                        targetDiv.html(html);
+                    } else {
+                        targetDiv.html('<p>Δεν βρέθηκαν ραντεβού.</p>');
+                    }
+                    targetDiv.slideDown(); // Εμφανίζουμε τα ραντεβού με ομαλό άνοιγμα
+                },
+                error: function() {
+                    targetDiv.html('<p>Σφάλμα κατά τη φόρτωση των ραντεβού.</p>');
+                }
+            });
+        }
+    });
+});
+
+    </script>
 </div>
 
 </body>
 </html>
+
