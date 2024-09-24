@@ -86,7 +86,7 @@ $stmt->close();
                     <h3>Στοιχεία Προφίλ</h3>
                     <p><strong>Όνομα:</strong> <?php echo $firstName . " " . $lastName; ?></p>
                     <p><strong>Email:</strong> <?php echo $email; ?></p>
-                    <a href="edit_profile.php" class="btn primary">Επεξεργασία Προφίλ</a>
+                    <a href="edit_appointment.php" class="btn primary">Επεξεργασία Προφίλ</a>
                 </div>
             </div>
         </div>

@@ -1,4 +1,4 @@
-<?php
+<<?php
 session_start();
 require_once 'db_config.php'; // Include your database configuration file
 
@@ -18,19 +18,24 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// Fetch doctor AT (Αριθμός Ταυτότητας) based on email
-$stmt_doc = $conn->prepare("SELECT AT FROM xristis WHERE Email = ?");
+// Fetch doctor D_id based on email
+$stmt_doc = $conn->prepare("
+    SELECT i.D_id 
+    FROM iatros i 
+    JOIN xristis x ON i.D_Name = x.FirstName AND i.D_Surname = x.LastName 
+    WHERE x.Email = ?
+");
 $stmt_doc->bind_param("s", $doctor_email);
 $stmt_doc->execute();
-$stmt_doc->bind_result($doctorAT);
+$stmt_doc->bind_result($doctorID);
 $stmt_doc->fetch();
 $stmt_doc->close();
 
-// Fetch appointments related to the logged-in doctor
+// Fetch appointments related to the logged-in doctor using D_id
 $appointments = $conn->query("
     SELECT id_appointment, a_date, a_time, a_desc, a_state 
     FROM rantevou 
-    WHERE a_doc = '$doctorAT'
+    WHERE a_doc = '$doctorID'
 ");
 
 // Fetch patients (no join, we retrieve all patients)
@@ -39,11 +44,11 @@ $patients = $conn->query("
     FROM asthenis
 ");
 
-// Fetch medical history related to the logged-in doctor (no join, we just get the entries directly)
+// Fetch medical history related to the logged-in doctor using D_id
 $history = $conn->query("
     SELECT id_entry, e_healthproblems, e_cure 
     FROM eggrafi 
-    WHERE e_doc = '$doctorAT'
+    WHERE e_doc = '$doctorID'
 ");
 ?>
 
@@ -61,7 +66,6 @@ $history = $conn->query("
     <link rel="stylesheet" href="css/style.css">
 
     <style>
-        /* Custom styling for better layout */
         .header-inner {
             margin-bottom: 30px;
         }
@@ -160,6 +164,7 @@ $history = $conn->query("
                         <div class="main-menu">
                             <nav class="navigation">
                                 <ul class="nav menu">
+                                    <li><a href="register_user.php">Εγγραφή Νέου Χρήστη</a></li> <!-- Add user link -->
                                 </ul>
                             </nav>
                             <div class="nav-separator"></div>
@@ -270,7 +275,6 @@ $history = $conn->query("
             <table class="table table-bordered">
                 <thead>
                 <tr>
-                    <th>Ημερομηνία</th>
                     <th>Προβλήματα Υγείας</th>
                     <th>Θεραπεία</th>
                     <th>Ενέργειες</th>
@@ -291,7 +295,7 @@ $history = $conn->query("
                             </tr>";
                     }
                 } else {
-                    echo "<tr><td colspan='4' class='text-center'>Δεν βρέθηκαν καταχωρήσεις στο ιστορικό</td></tr>";
+                    echo "<tr><td colspan='3' class='text-center'>Δεν βρέθηκαν καταχωρήσεις στο ιστορικό</td></tr>";
                 }
                 ?>
                 </tbody>
