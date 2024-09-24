@@ -160,11 +160,6 @@ $history = $conn->query("
                         <div class="main-menu">
                             <nav class="navigation">
                                 <ul class="nav menu">
-                                    <li><a href="index.php">Αρχική</a></li>
-                                    <li class="active"><a href="doctor_dashboard.php">Dashboard Γιατρού</a></li>
-                                    <li><a href="manage_appointments.php">Διαχείριση Ραντεβού</a></li>
-                                    <li><a href="manage_patients.php">Διαχείριση Ασθενών</a></li>
-                                    <li><a href="manage_history.php">Διαχείριση Ιατρικού Ιστορικού</a></li>
                                 </ul>
                             </nav>
                             <div class="nav-separator"></div>
