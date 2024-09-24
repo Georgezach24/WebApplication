@@ -40,94 +40,6 @@ $stmt->close();
     <link rel="stylesheet" href="css/icofont.css">
     <link rel="stylesheet" href="css/style.css">
 
-    <style>
-        /* Custom styling for better layout */
-        .header-inner {
-            margin-bottom: 30px;
-        }
-
-        /* Remove the topbar and extra contact information */
-        .topbar, .top-contact {
-            display: none;
-        }
-
-        .section-title {
-            margin-bottom: 40px;
-            text-align: center;
-        }
-
-        .profile-info, .appointments, .history {
-            margin-bottom: 50px;
-        }
-
-        .profile-info h3, .appointments h3, .history h3 {
-            margin-bottom: 20px;
-        }
-
-        .profile-info p, .appointments p, .history p {
-            margin-bottom: 15px;
-        }
-
-        .profile-info a {
-            margin-top: 20px;
-        }
-
-        /* Styling for table */
-        .table-responsive {
-            margin-top: 20px;
-        }
-
-        /* Footer styling */
-        footer {
-            margin-top: 50px;
-            padding: 30px 0;
-            background: #f8f9fa;
-        }
-
-        /* Spacing for navigation links */
-        .nav.menu > li {
-            margin-right: 20px;
-        }
-
-        .profile-info, .appointments, .history {
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-        }
-
-        .profile-info p, .appointments p, .history p {
-            font-size: 16px;
-            color: #333;
-        }
-
-        /* Add subtle separator line between menu and content */
-        .nav-separator {
-            border-bottom: 1px solid #e0e0e0;
-            margin-bottom: 20px;
-        }
-
-        /* Footer links and contact information layout */
-        .footer-bottom {
-            margin-top: 30px;
-        }
-
-        /* Hide the unnecessary "Links" section in footer */
-        .footer-links {
-            display: none;
-        }
-
-        .footer-contact p {
-            margin-bottom: 10px;
-        }
-
-        .footer-contact i {
-            margin-right: 10px;
-        }
-
-        .btn {
-            margin-top: 10px;
-        }
-    </style>
 </head>
 <body>
 
@@ -147,7 +59,6 @@ $stmt->close();
                         <div class="main-menu">
                             <nav class="navigation">
                             </nav>
-                            <!-- Subtle separator line -->
                             <div class="nav-separator"></div>
                         </div>
                     </div>
@@ -202,7 +113,11 @@ $stmt->close();
                 <tbody>
                 <?php
                 // Fetch appointments for the logged-in patient
-                $stmt = $conn->prepare("SELECT id_appointment, a_date, a_time, a_desc, a_state FROM rantevou WHERE a_doc = ?");
+                $stmt = $conn->prepare("
+                    SELECT r.id_appointment, r.a_date, r.a_time, r.a_desc, r.a_state 
+                    FROM rantevou r
+                    JOIN books b ON r.id_appointment = b.id_appointment
+                    WHERE b.AT = ?");
                 $stmt->bind_param("s", $patientAT);
                 $stmt->execute();
                 $stmt->store_result();

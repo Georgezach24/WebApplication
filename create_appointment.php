@@ -64,6 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if ($stmt_books->execute()) {
                 $success = "Το ραντεβού δημιουργήθηκε επιτυχώς.";
+                header("Location: success.html");
             } else {
                 $error = "Σφάλμα κατά τη σύνδεση του ραντεβού με τον ασθενή.";
             }
@@ -75,10 +76,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->close();
     }
 }
-
-$conn->close();
-?>
-
 
 $conn->close();
 ?>
