@@ -36,19 +36,23 @@ if ($role === 'Patient') {
     $stmt->fetch();
     $stmt->close();
 
-    // Check if the appointment belongs to the patient
-    $stmt_check = $conn->prepare("SELECT a_doc FROM rantevou WHERE id_appointment = ? AND a_doc = ?");
-    $stmt_check->bind_param("ss", $appointmentID, $patientAT);
+    // Check if the appointment belongs to the patient by checking the 'books' table
+    $stmt_check = $conn->prepare("
+        SELECT b.AT 
+        FROM books b
+        JOIN rantevou r ON b.id_appointment = r.id_appointment
+        WHERE b.AT = ? AND r.id_appointment = ?");
+    $stmt_check->bind_param("ss", $patientAT, $appointmentID);
     $stmt_check->execute();
-    $stmt_check->bind_result($appointmentDoc);
-    $stmt_check->fetch();
-    $stmt_check->close();
+    $stmt_check->store_result();
 
-    // If appointment does not belong to the patient, show unauthorized message
-    if ($appointmentDoc !== $patientAT) {
+    // If the appointment does not belong to the patient, show unauthorized message
+    if ($stmt_check->num_rows === 0) {
         echo "Unauthorized action.";
+        $stmt_check->close();
         exit();
     }
+    $stmt_check->close();
 }
 
 // If the user is a doctor, they can delete any appointment without ownership checks
