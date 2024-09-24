@@ -86,12 +86,15 @@ $stmt->close();
                     <h3>Στοιχεία Προφίλ</h3>
                     <p><strong>Όνομα:</strong> <?php echo $firstName . " " . $lastName; ?></p>
                     <p><strong>Email:</strong> <?php echo $email; ?></p>
-                    <a href="edit_appointment.php" class="btn primary">Επεξεργασία Προφίλ</a>
+                    <a href="edit_profile.php" class="btn primary">Επεξεργασία Προφίλ</a>
                 </div>
             </div>
         </div>
     </div>
 </section>
+
+
+
 
 <!-- Appointments Section -->
 <section class="appointments section">
@@ -144,9 +147,13 @@ $stmt->close();
                 </tbody>
             </table>
         </div>
-        <a href="create_appointment.php" class="btn primary">Δημιουργία Νέου Ραντεβού</a>
+
+        <!-- Κουμπί για αναζήτηση ραντεβού -->
+        <a href="search_appointments_criteria.php" class="btn btn-primary">Αναζήτηση Ραντεβού</a>
+        <a href="create_appointment.php" class="btn btn-primary">Δημιουργία Νέου Ραντεβού</a>
     </div>
 </section>
+
 
 <!-- Medical History Section -->
 <section class="history section">
@@ -166,15 +173,24 @@ $stmt->close();
             if ($stmt_history->num_rows > 0) {
                 while ($stmt_history->fetch()) {
                     echo "<div class='col-lg-6 col-md-12'>
-                            <div class='history-entry'>
-                                <p><strong>Γιατρός:</strong> {$doc}</p>
-                                <p><strong>Προβλήματα Υγείας:</strong> {$problems}</p>
-                                <p><strong>Θεραπεία:</strong> {$cure}</p>
+                            <div class='history-entry card mb-4'>
+                                <div class='card-header'>
+                                    <h4 class='card-title'>Καταχώρηση Ιστορικού: {$id_entry}</h4>
+                                </div>
+                                <div class='card-body'>
+                                    <p><strong>Γιατρός:</strong> {$doc}</p>
+                                    <p><strong>Προβλήματα Υγείας:</strong> {$problems}</p>
+                                    <p><strong>Θεραπεία:</strong> {$cure}</p>
+                                </div>
+                                <div class='card-footer'>
+                                    <button class='btn btn-primary'>Λεπτομέρειες</button>
+                                    <button class='btn btn-secondary'>Επεξεργασία</button>
+                                </div>
                             </div>
                         </div>";
                 }
             } else {
-                echo "<p>Δεν βρέθηκαν καταχωρήσεις στο ιστορικό.</p>";
+                echo "<div class='col-12'><p>Δεν βρέθηκαν καταχωρήσεις στο ιστορικό.</p></div>";
             }
             $stmt_history->close();
             ?>

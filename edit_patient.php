@@ -3,7 +3,7 @@ session_start();
 require_once 'db_config.php';
 
 // Ensure the user is logged in and has the role of Doctor
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Doctor') {
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'Doctor' && $_SESSION['role'] !== 'Patient') {
     header('Location: login.html');
     exit();
 }

@@ -65,86 +65,6 @@ $history = $conn->query("
     <link rel="stylesheet" href="css/icofont.css">
     <link rel="stylesheet" href="css/style.css">
 
-    <style>
-        .header-inner {
-            margin-bottom: 30px;
-        }
-
-        .topbar, .top-contact {
-            display: none;
-        }
-
-        .section-title {
-            margin-bottom: 40px;
-            text-align: center;
-        }
-
-        .appointments, .patients, .history {
-            margin-bottom: 50px;
-        }
-
-        .appointments h3, .patients h3, .history h3 {
-            margin-bottom: 20px;
-        }
-
-        .appointments p, .patients p, .history p {
-            margin-bottom: 15px;
-        }
-
-        .appointments a, .patients a, .history a {
-            margin-top: 20px;
-        }
-
-        .table-responsive {
-            margin-top: 20px;
-        }
-
-        footer {
-            margin-top: 50px;
-            padding: 30px 0;
-            background: #f8f9fa;
-        }
-
-        .nav.menu > li {
-            margin-right: 20px;
-        }
-
-        .appointments, .patients, .history {
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-        }
-
-        .appointments p, .patients p, .history p {
-            font-size: 16px;
-            color: #333;
-        }
-
-        .nav-separator {
-            border-bottom: 1px solid #e0e0e0;
-            margin-bottom: 20px;
-        }
-
-        .footer-bottom {
-            margin-top: 30px;
-        }
-
-        .footer-links {
-            display: none;
-        }
-
-        .footer-contact p {
-            margin-bottom: 10px;
-        }
-
-        .footer-contact i {
-            margin-right: 10px;
-        }
-
-        .btn {
-            margin-top: 10px;
-        }
-    </style>
 </head>
 <body>
 
@@ -157,7 +77,7 @@ $history = $conn->query("
                     <div class="col-lg-3 col-md-3 col-12">
                         <!-- Logo -->
                         <div class="logo">
-                            <a href="index.php"><img src="img/logo.png" alt="#"></a>
+                            <a href="index.html"><img src="img/logo.png" alt="#"></a>
                         </div>
                     </div>
                     <div class="col-lg-7 col-md-9 col-12">
@@ -220,8 +140,12 @@ $history = $conn->query("
                 </tbody>
             </table>
         </div>
+
+        <!-- Κουμπί για αναζήτηση όλων των ραντεβού -->
+        <a href="search_all_appointments.php" class="btn btn-primary mt-3">Αναζήτηση Όλων των Ραντεβού</a>
     </div>
 </section>
+
 
 <!-- Patients Section -->
 <section class="patients section">
