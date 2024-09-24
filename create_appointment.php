@@ -104,7 +104,7 @@ $conn->close();
                     <div class="col-lg-3 col-md-3 col-12">
                         <!-- Logo -->
                         <div class="logo">
-                            <a href="index.php"><img src="img/logo.png" alt="#"></a>
+                            <a href="index.html"><img src="img/logo.png" alt="#"></a>
                         </div>
                     </div>
                     <div class="col-lg-2 col-12">
